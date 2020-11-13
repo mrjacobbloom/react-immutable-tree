@@ -1,0 +1,9 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "outDir": "dist",
+    "declaration": true
+  }
+}

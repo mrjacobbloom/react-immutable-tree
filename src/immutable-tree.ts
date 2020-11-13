@@ -1,0 +1,194 @@
+const IS_INTERNAL = Symbol('IS_INTERNAL');
+
+class ImmutableTreeNode<T> {
+  /**
+   * When a node is removed from the tree, markedDead = true, which makes
+   * its update methods throw
+   */
+  #markedDead: boolean = false;
+
+  #children: ReadonlyArray<ImmutableTreeNode<T>>; // todo: change to .length and .at(index) or.child(index)
+  #parent: ImmutableTreeNode<T> | null; // this will actually change mutably, whoopsie
+  #data: T;
+  #tree: ImmutableTree<T>;
+
+  public get children(): ReadonlyArray<ImmutableTreeNode<T>> { return this.#children; };
+  public get parent(): ImmutableTreeNode<T> | null { return this.#parent; };
+  public get data(): T { return this.#data; };
+
+  constructor(tree: ImmutableTree<T>, parent: ImmutableTreeNode<T> | null, data: T, children: ImmutableTreeNode<T>[] | ReadonlyArray<ImmutableTreeNode<T>>) {
+    this.#tree = tree;
+    this.#parent = parent;
+    this.#data = data;
+    this.#children = Object.isFrozen(children) ? children : Object.freeze(children);
+  }
+
+  /**
+   * Update the data at the given node.
+   * @param updater 
+   * @returns The new tree node that will replace this one
+   */
+  public updateData(updater: (oldData: Readonly<T> | undefined) => T): ImmutableTreeNode<T> {
+    this.assertNotDead();
+    const newData = updater(this.#data);
+    const myReplacement = this.clone();
+    myReplacement.#data = newData;
+    this.replaceSelf(myReplacement);
+    return myReplacement;
+  }
+
+  /**
+   * Inserts a child to the node.
+   * @param index Defaults to the end of the list.
+   * @returns The new child TreeNode
+   */
+  public insertChildWithData(data: T, index: number = this.#children.length): ImmutableTreeNode<T> {
+    this.assertNotDead();
+    const newChild = new ImmutableTreeNode<T>(this.#tree, this, data, []);
+
+    const myReplacement = this.clone();
+    const children = myReplacement.#children.slice();
+    children.splice(index, 0, newChild); // hey future me: this may be a deoptimization point to watch out for
+    Object.freeze(children);
+    myReplacement.#children = children;
+    this.replaceSelf(myReplacement);
+    return newChild;
+  }
+
+  // todo: a way to move nodes around in the tree?
+  // todo: a way to delete without losing grandchildren?
+
+  /**
+   * Remove this node.
+   * @returns The removed node
+   */
+  public remove(): this {
+    if (this.#parent) {
+      const parentReplacement = this.#parent.clone();
+      parentReplacement.#children = Object.freeze(parentReplacement.#children.filter(child => child !== this));
+      this.#parent.replaceSelf(parentReplacement);
+    } else {
+      this.#tree._changeRoot(null, IS_INTERNAL);
+    }
+    this.#markedDead = true;
+    // todo: recursively mark children as dead?
+    return this;
+  }
+
+  /**
+   * Remove the child with the given index
+   * @returns The removed node
+   */
+  public removeChildAt(index: number): ImmutableTreeNode<T> {
+    this.assertNotDead();
+    const child = this.#children[index];
+    const myReplacement = this.clone();
+    const children = myReplacement.#children.slice();
+    children.splice(index, 0);
+    Object.freeze(children)
+    myReplacement.#children = children;
+    this.replaceSelf(myReplacement);
+    // todo: recursively mark grandchildren as dead?
+    return child;
+  }
+
+  /**
+   * Remove one or more of the node's children based on a given filter function.
+   * @returns Array of removed children
+   */
+  public removeChildrenMatching(predicate: (child: ImmutableTreeNode<T>) => boolean): ImmutableTreeNode<T>[] {
+    this.assertNotDead();
+    const removedChildren: ImmutableTreeNode<T>[] = []; // hey future me: this may be a deoptimization point to watch out for
+    const newChildren : ImmutableTreeNode<T>[] = [];
+    for(const child of this.#children) {
+      if (predicate(child)) {
+        newChildren.push(child);
+      } else {
+        removedChildren.push(child);
+        // todo: recursively mark grandchildren as dead?
+      }
+    }
+    const myReplacement = this.clone();
+    myReplacement.#children = Object.freeze(newChildren);
+    this.replaceSelf(myReplacement);
+    return removedChildren;
+  }
+
+  /**
+   * Traverse the whole sub-tree until a matching node is found.
+   */
+  public findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null {
+    for(const child of this.#children) {
+      const found = child.findOne(predicate);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  // public findOneBinary(predicate: (data: T) => 'found' | 'left' | 'right'): ImmutableTreeNode<T> | null {
+  //   const where = predicate(this.#data);
+  //   if (where === 'found') return this;
+  //   if (where === 'left' && this.#children[0]) return this.#children[0].findOneBinary(predicate);
+  //   if (where === 'right' && this.#children[1]) return this.#children[1].findOneBinary(predicate);
+  //   return null;
+  // }
+
+  private clone(): ImmutableTreeNode<T> {
+    return new ImmutableTreeNode<T>(this.#tree, this.#parent, this.#data, this.#children);
+  }
+  private replaceSelf(myReplacement: ImmutableTreeNode<T>): void {
+    for(const child of this.#children) {
+      child.#parent = myReplacement;
+    }
+    if (this.#parent) {
+      const parentReplacement = this.#parent.clone();
+      parentReplacement.#children = Object.freeze(parentReplacement.#children.map(child => child === this ? myReplacement : child));
+      this.#parent.replaceSelf(parentReplacement);
+    } else {
+      this.#tree._changeRoot(myReplacement, IS_INTERNAL);
+    }
+    this.#markedDead = true;
+  }
+  private assertNotDead(): void {
+    if(this.#markedDead) {
+      throw new Error(`Illegal attempt to modify a node that no longer exists`);
+    }
+  }
+}
+
+export class ImmutableTree<T> extends EventTarget /* will this break in Node? Who knodes */ {
+  #root: ImmutableTreeNode<T> | null = null; // todo: this should nbe more immutable
+
+  /**
+   * The root node of the tree
+   */
+  public get root(): ImmutableTreeNode<T> | null { return this.#root; };
+
+  /**
+   * Create a root node with the given data object. 
+   * @returns The new root.
+   */
+  public addRootWithData(data: T): ImmutableTreeNode<T> {
+    if (this.#root) {
+      throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
+    }
+    this.#root = new ImmutableTreeNode<T>(this, null, data, []);
+    return this.#root;
+  }
+
+  /**
+   * Traverse the whole tree until a matching node is found.
+   */
+  public findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null {
+    return this.#root ? this.#root.findOne(predicate) : null;
+  }
+
+  public _changeRoot(newRoot: ImmutableTreeNode<T> | null, isInternal: typeof IS_INTERNAL): void {
+    if(isInternal !== IS_INTERNAL) {
+      throw new Error('Illegal invocation of internal method');
+    }
+    this.#root = newRoot;
+  }
+}
+
+// todo: write some react hooks as needed

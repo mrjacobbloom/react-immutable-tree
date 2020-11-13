@@ -1,0 +1,23 @@
+{
+  "name": "immutable-tree",
+  "version": "0.1.0",
+  "description": "An immutable tree structure because it's very difficult to correctly handle tree-like data in React",
+  "main": "dist/immutable-tree.js",
+  "scripts": {
+    "build": "npx tsc",
+    "test": "echo \"\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrjacobbloom/immutable-tree.git"
+  },
+  "author": "Jacob Bloom",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrjacobbloom/immutable-tree/issues"
+  },
+  "homepage": "https://github.com/mrjacobbloom/immutable-tree#readme",
+  "dependencies": {
+    "typescript": "^4.0.5"
+  }
+}
