@@ -44,9 +44,6 @@ myNode = myNode.updateData(oldData => { ...oldData, title: 'my very exciting tit
 myNode = myNode.insertChildWithData({ title: 'my even more exciting title' });
 myNode = myNode.remove(); // No new node is generated for this one, it returns itself
 
-// You can also do it this way
-const newChild = tableOfContents.root.children[0].insertChildWithData({ title: '1.4. It' });
-newChild.parent.removeChildAt(0);
 // todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
 // (if I do add that, update the error message in assertNotDead to be more helpful)
 
