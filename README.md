@@ -11,9 +11,10 @@ relationships matter, because deleting the first child in a node shifts the
 second child to the first position.) It is a subclass of `EventTarget`, which
 makes it easy to subscribe to changes.
 
-When a node changes, its ancestors are all replaced, but its siblings are not
-(the sibling's `.parent` property changes, but it's the same object). In the
-following image (adapted from [here](https://commons.wikimedia.org/wiki/File:Tree_(computer_science).svg))
+When a node changes, its ancestors are all replaced, but its siblings
+and children are not (the siblings and children's `.parent` properties change,
+but it's the same object). Given the following graph (adapted from
+[here](https://commons.wikimedia.org/wiki/File:Tree_(computer_science).svg)),
 updating the purple node causes that node, as well as all green nodes, to be
 replaced. Orange nodes are reused.
 
@@ -86,28 +87,27 @@ import { ImmutableTree } from 'react-immutable-tree';
 const tableOfContents = new ImmutableTree();
 tableOfContents.addRootWithData({ title: null });
 
-tableOfContents.root.insertChildWithData({ title: '1. How I did it' });
-tableOfContents.root.insertChildWithData({ title: '3. Why I did it' }); // root is a different object now!
-tableOfContents.root.insertChildWithData({ title: '2. If I did it' }, 1); // optional second argument is index in children list
+// If we don't need the tree to behave immutably yet, the easiest way to build it is using this function
+const root = tableOfContents.root;
+root.dangerouslyMutablyInsertChildWithData({ title: '1. How I did it' });
+root.dangerouslyMutablyInsertChildWithData({ title: '3. Why I did it' });
+root.dangerouslyMutablyInsertChildWithData({ title: '2. If I did it' }, 1); // optional second argument is index
 
-// If we don't need the tree to behave immutably yet, it's easier to build a tree
-// that isn't constantly replacing its own nodes. You can use this function in that case
-tableOfContents.root.dangerouslyMutablyInsertChildWithData({ title: '4. But... I did it...' }, 1);
+// That's because most other functions cause the nodes to replace themselves, dispatch events, etc.
+// And since they behave that way, we often have to walk the entire tree for subsequent operations
 
-// Because all ancestors are replaced on every operation, we have to walk the entire tree for every operation
 tableOfContents.root.children[0].insertChildWithData({ title: '1.1. How' });
-tableOfContents.root.children[0].insertChildWithData({ title: '1.2. I' });
-tableOfContents.root.children[0].insertChildWithData({ title: '1.3. did' });
+tableOfContents.root.children[0].insertChildWithData({ title: '1.3. did' }); // root is a different object now!
+tableOfContents.root.children[0].insertChildWithData({ title: '1.2. I' }, 1); // again, optional second argument is index
 tableOfContents.root.children[0].children[2].remove(2);
 
-// Many functions return the updated version of the node you're operating on, making it easy to keep "transforming" the same node
+// HOWEVER, many functions return the updated version of the node you're operating on, making it easy to keep working with the same node
 let myNode = tableOfContents.root.children[0];
 myNode = myNode.updateData(oldData => { ...oldData, title: 'my very exciting title' });
 myNode = myNode.insertChildWithData({ title: 'my even more exciting title' });
 myNode = myNode.moveTo(someOtherNode, 2); // No new node is generated for this one, it returns itself. Also, optional second arg is index
 myNode = myNode.remove(); // Same here
 ```
-
 
 ## API Refernce
 
