@@ -16,7 +16,7 @@ When a node changes, its ancestors are all replaced, but its siblings are not
 following image (adapted from [here](https://commons.wikimedia.org/wiki/File:Tree_(computer_science).svg))
 updating the purple node causes it, as well as all green nodes, to be replaced.
 
-![Image representing upward propagation of changes](https://raw.githubusercontent.com/mrjacobbloom/react-immutable-tree/master/tree-example.svg)
+![Image representing upward propagation of changes](https://raw.githubusercontent.com/mrjacobbloom/react-immutable-tree/main/tree-example.svg)
 
 That makes this library compatible with things like `React.memo()`, which use a
 simple equality check to decide whether to re-render.
