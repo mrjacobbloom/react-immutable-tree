@@ -4,7 +4,7 @@ import chai from 'chai';
 const expect = chai.expect;
 
 import { pojoData1, pojoData1Parser } from './testData.js';
-import { ImmutableTree } from '../dist/immutable-tree.js';
+import { ImmutableTree } from '../dist/react-immutable-tree.js';
 
 describe('ImmutableTree', () => {
   describe('#root', () => {

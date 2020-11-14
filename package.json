@@ -1,12 +1,12 @@
 {
-  "name": "immutable-tree",
-  "version": "0.1.0",
+  "name": "react-immutable-tree",
+  "version": "0.2.0",
   "description": "An immutable tree structure because it's very difficult to correctly handle tree-like data in React",
-  "main": "dist/immutable-tree.js",
+  "main": "dist/react-immutable-tree.js",
   "type": "module",
   "exports": {
-    ".": "./dist/immutable-tree.ts",
-    "./react": "./dist/immutable-tree-react.ts"
+    ".": "./dist/react-immutable-tree.js",
+    "./react": "./dist/react-immutable-tree-hook.js"
   },
   "scripts": {
     "build": "npx tsc",

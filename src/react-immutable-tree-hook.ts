@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { ImmutableTree } from './immutable-tree';
+import type { ImmutableTree } from './react-immutable-tree';
 
 export function useTree<T>(tree: ImmutableTree<T>): ImmutableTree<T>['root'] {
   const [rootNode, setRootNode] = useState(tree.root);

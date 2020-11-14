@@ -1,2 +1,2 @@
-import type { ImmutableTree } from './immutable-tree';
+import type { ImmutableTree } from './react-immutable-tree';
 export declare function useTree<T>(tree: ImmutableTree<T>): ImmutableTree<T>['root'];

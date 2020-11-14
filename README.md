@@ -1,7 +1,9 @@
-# immutable-tree
+# react-immutable-tree
 
 An immutable tree structure because it's very difficult to correctly handle
-tree-like data in React.
+tree-like data in React. Despite the name, this can be used as a standalone
+library, or even (theoretically) with other JS frameworks. It's just called
+this because `immutable-tree` was already taken on npm.
 
 An ImmutableTree is a tree structure that can have any number of ordered
 children. (Note: Deleting the first child in a node shifts the second child
@@ -20,7 +22,7 @@ EventTarget and I don't want to polyfill it just for the tests.
 ## Example
 
 ```javascript
-import { ImmutableTree } from 'immutable-tree';
+import { ImmutableTree } from 'react-immutable-tree';
 
 /******* CONSTRUCTING/TRANSFORMING A TREE *******/
 
@@ -82,7 +84,7 @@ const NodeView = ({ node }) => (
   </li>
 );
 
-import { useTree } from 'immutable-tree/react';
+import { useTree } from 'react-immutable-tree/hook';
 const App = ({tree}) => {
   const rootNode = useTree(tree);
 

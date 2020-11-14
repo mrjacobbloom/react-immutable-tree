@@ -6,8 +6,8 @@ import reactHooks from '@testing-library/react-hooks'
 const { renderHook, act } = reactHooks;
 
 import { pojoData1, pojoData1Parser } from './testData.js';
-import { ImmutableTree } from '../dist/immutable-tree.js';
-import { useTree } from '../dist/immutable-tree-react.js';
+import { ImmutableTree } from '../dist/react-immutable-tree.js';
+import { useTree } from '../dist/react-immutable-tree-hook.js';
 
 describe('useTree', () => {
   it('Should run on update node', () => {
