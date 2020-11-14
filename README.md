@@ -134,6 +134,6 @@ read-only.
 
 - `findOne(predicate: (data: any) => boolean): ImmutableTreeNode | null` - Traverse the whole sub-tree until a matching node is found.
 
-### `React hook`
+### React hook
 
 - `useTree(tree: ImmutableTree): ImmutableTreeNode` - see example
