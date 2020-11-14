@@ -28,16 +28,6 @@ declare class ImmutableTreeNode<T> {
      */
     remove(): this;
     /**
-     * Remove the child with the given index
-     * @returns The removed node
-     */
-    removeChildAt(index: number): ImmutableTreeNode<T>;
-    /**
-     * Remove one or more of the node's children based on a given filter function.
-     * @returns Array of removed children
-     */
-    removeChildrenMatching(predicate: (child: ImmutableTreeNode<T>) => boolean): ImmutableTreeNode<T>[];
-    /**
      * Traverse the whole sub-tree until a matching node is found.
      */
     findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;

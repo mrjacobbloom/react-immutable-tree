@@ -106,47 +106,6 @@ class ImmutableTreeNode<T> {
   }
 
   /**
-   * Remove the child with the given index
-   * @returns The removed node
-   */
-  public removeChildAt(index: number): ImmutableTreeNode<T> {
-    this.assertNotDead();
-    const child = this.#children[index];
-    const myReplacement = this.clone();
-    const children = myReplacement.#children.slice();
-    children.splice(index, 0);
-    Object.freeze(children)
-    myReplacement.#children = children;
-    this.replaceSelf(myReplacement);
-    // todo: recursively mark grandchildren as dead?
-    child.dispatch('immutabletree.deletenode');
-    return child;
-  }
-
-  /**
-   * Remove one or more of the node's children based on a given filter function.
-   * @returns Array of removed children
-   */
-  public removeChildrenMatching(predicate: (child: ImmutableTreeNode<T>) => boolean): ImmutableTreeNode<T>[] {
-    this.assertNotDead();
-    const removedChildren: ImmutableTreeNode<T>[] = []; // hey future me: this may be a deoptimization point to watch out for
-    const newChildren : ImmutableTreeNode<T>[] = [];
-    for(const child of this.#children) {
-      if (predicate(child)) {
-        newChildren.push(child);
-      } else {
-        removedChildren.push(child);
-        // todo: recursively mark grandchildren as dead?
-      }
-    }
-    const myReplacement = this.clone();
-    myReplacement.#children = Object.freeze(newChildren);
-    this.replaceSelf(myReplacement);
-    removedChildren.forEach(child => child.dispatch('immutabletree.deletenode')); // todo: one big aggregate event?
-    return removedChildren;
-  }
-
-  /**
    * Traverse the whole sub-tree until a matching node is found.
    */
   public findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null {

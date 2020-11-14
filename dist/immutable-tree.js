@@ -98,46 +98,6 @@ class ImmutableTreeNode {
         return this;
     }
     /**
-     * Remove the child with the given index
-     * @returns The removed node
-     */
-    removeChildAt(index) {
-        this.assertNotDead();
-        const child = this.#children[index];
-        const myReplacement = this.clone();
-        const children = myReplacement.#children.slice();
-        children.splice(index, 0);
-        Object.freeze(children);
-        myReplacement.#children = children;
-        this.replaceSelf(myReplacement);
-        // todo: recursively mark grandchildren as dead?
-        child.dispatch('immutabletree.deletenode');
-        return child;
-    }
-    /**
-     * Remove one or more of the node's children based on a given filter function.
-     * @returns Array of removed children
-     */
-    removeChildrenMatching(predicate) {
-        this.assertNotDead();
-        const removedChildren = []; // hey future me: this may be a deoptimization point to watch out for
-        const newChildren = [];
-        for (const child of this.#children) {
-            if (predicate(child)) {
-                newChildren.push(child);
-            }
-            else {
-                removedChildren.push(child);
-                // todo: recursively mark grandchildren as dead?
-            }
-        }
-        const myReplacement = this.clone();
-        myReplacement.#children = Object.freeze(newChildren);
-        this.replaceSelf(myReplacement);
-        removedChildren.forEach(child => child.dispatch('immutabletree.deletenode')); // todo: one big aggregate event?
-        return removedChildren;
-    }
-    /**
      * Traverse the whole sub-tree until a matching node is found.
      */
     findOne(predicate) {
