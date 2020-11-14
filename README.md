@@ -92,7 +92,7 @@ ReactDOM.render(<App tree={myTree} />, document.getElementById('app'));
 
 ## API Refernce
 
-### `ImutableTree`
+### `ImmutableTree`
 
 A subclass of `EventTarget`. Emmitted events may include:
 
@@ -101,8 +101,8 @@ A subclass of `EventTarget`. Emmitted events may include:
 - `immutabletree.deletenode`
 
 Each event has a `.targetNode` property containing the affected node. Note that
-for `immutabletree.updatenode`, `targetNode` is the OLD copy of the node, which
-is read-only.
+for `myTree.updatenode`, `targetNode` is the OLD copy of the node, which is
+read-only.
 
 #### Static Methods
 
@@ -133,3 +133,7 @@ is read-only.
 #### Traversal Methods
 
 - `findOne(predicate: (data: any) => boolean): ImmutableTreeNode | null` - Traverse the whole sub-tree until a matching node is found.
+
+### `React hook`
+
+- `useTree(tree: ImmutableTree): ImmutableTreeNode` - see example
