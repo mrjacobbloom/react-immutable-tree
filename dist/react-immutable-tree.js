@@ -26,8 +26,11 @@ class ImmutableTreeNode {
          * its update methods throw
          */
         _markedDead.set(this, false);
-        _children.set(this, void 0); // todo: change to .length and .at(index) or.child(index)
-        _parent.set(this, void 0); // this will actually change mutably, whoopsie
+        // @todo: should markedDead be opaque? Should it throw when you access data/children/parent as well?
+        // @todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
+        // (if I do add that, update the error message in assertNotDead to be more helpful)
+        _children.set(this, void 0);
+        _parent.set(this, void 0);
         _data.set(this, void 0);
         _tree.set(this, void 0);
         __classPrivateFieldSet(this, _tree, tree);
@@ -99,7 +102,6 @@ class ImmutableTreeNode {
         // newChild.dispatch('immutabletree.createnode');
         return this;
     }
-    // todo: a way to delete without losing grandchildren?
     /**
      * Move this node to the given position.
      * @param newParent Parent node to add to

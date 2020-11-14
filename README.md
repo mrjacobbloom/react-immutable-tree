@@ -105,9 +105,6 @@ myNode = myNode.updateData(oldData => { ...oldData, title: 'my very exciting tit
 myNode = myNode.insertChildWithData({ title: 'my even more exciting title' });
 myNode = myNode.moveTo(someOtherNode, 2); // No new node is generated for this one, it returns itself. Also, optional second arg is index
 myNode = myNode.remove(); // Same here
-
-// todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
-// (if I do add that, update the error message in assertNotDead to be more helpful)
 ```
 
 
@@ -122,9 +119,7 @@ A subclass of `EventTarget`. Emmitted events may include:
 - `immutabletree.movenode`
 - `immutabletree.removenode`
 
-Each event has a `.targetNode` property containing the affected node. Note that
-for `myTree.updatenode`, `targetNode` is the OLD copy of the node, which is
-read-only.
+Each event has a `.targetNode` property containing the affected node.
 
 #### Static Methods
 
@@ -146,6 +141,10 @@ read-only.
 - `ImmutableTreeNode#data: any` - the data associated with the node
 
 #### Transformation Methods
+
+Each of these methods returns the next version of the modified node (or itself,
+if the operation does not modify the node). The old version of the node is then
+marked dead, which means it'll throw an error if you try to modify it further.
 
 - `ImmutableTreeNode#updateData(updater: (oldData: any | undefined) => any): ImmutableTreeNode` - Update the data at the given node. Returns the new tree node that will replace this one.
 - `ImmutableTreeNode#setData(newData: any): ImmutableTreeNode` - Set the data at the given node. Returns the new tree node that will replace this one.

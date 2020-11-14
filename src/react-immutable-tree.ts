@@ -18,9 +18,12 @@ class ImmutableTreeNode<T> {
    * its update methods throw
    */
   #markedDead: boolean = false;
+  // @todo: should markedDead be opaque? Should it throw when you access data/children/parent as well?
+  // @todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
+  // (if I do add that, update the error message in assertNotDead to be more helpful)
 
-  #children: ReadonlyArray<ImmutableTreeNode<T>>; // todo: change to .length and .at(index) or.child(index)
-  #parent: ImmutableTreeNode<T> | null; // this will actually change mutably, whoopsie
+  #children: ReadonlyArray<ImmutableTreeNode<T>>;
+  #parent: ImmutableTreeNode<T> | null;
   #data: T;
   #tree: ImmutableTree<T>;
 
@@ -98,8 +101,6 @@ class ImmutableTreeNode<T> {
     // newChild.dispatch('immutabletree.createnode');
     return this;
   }
-
-  // todo: a way to delete without losing grandchildren?
 
   /**
    * Move this node to the given position.
