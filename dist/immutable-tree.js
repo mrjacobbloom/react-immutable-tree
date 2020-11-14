@@ -49,7 +49,7 @@ class ImmutableTreeNode {
     /**
      * Inserts a child to the node.
      * @param index Defaults to the end of the list.
-     * @returns The new child TreeNode
+     * @returns The new tree node that will replace this one
      */
     insertChildWithData(data, index = this.#children.length) {
         this.assertNotDead();
@@ -61,7 +61,7 @@ class ImmutableTreeNode {
         myReplacement.#children = children;
         this.replaceSelf(myReplacement);
         newChild.dispatch('immutabletree.createnode');
-        return newChild;
+        return myReplacement;
     }
     /**
      * Same as insertChildWithData but does not replace itself. Use this to build
@@ -75,7 +75,7 @@ class ImmutableTreeNode {
         Object.freeze(children);
         this.#children = children;
         // newChild.dispatch('immutabletree.createnode');
-        return newChild;
+        return this;
     }
     // todo: a way to move nodes around in the tree?
     // todo: a way to delete without losing grandchildren?

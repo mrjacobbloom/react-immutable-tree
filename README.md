@@ -38,9 +38,11 @@ tableOfContents.root.children[0].insertChildWithData({ title: '1.2. I' });
 tableOfContents.root.children[0].insertChildWithData({ title: '1.3. did' });
 tableOfContents.root.children[0].children[2].remove(2);
 
-// That said, once you have a reference to a node, it's easy to modify/replace it.
-myNode.remove();
-myNode2.updateData(oldData => { ...oldData, title: 'my very exciting title' });
+// Many functions return the updated version of the node you're operating on, making it easy to keep "transforming" the same node
+let myNode = tableOfContents.root.children[0];
+myNode = myNode.updateData(oldData => { ...oldData, title: 'my very exciting title' });
+myNode = myNode.insertChildWithData({ title: 'my even more exciting title' });
+myNode = myNode.remove(); // No new node is generated for this one, it returns itself
 
 // You can also do it this way
 const newChild = tableOfContents.root.children[0].insertChildWithData({ title: '1.4. It' });
@@ -127,7 +129,7 @@ read-only.
 #### Transformation Methods
 
 - `ImmutableTreeNode#updateData(updater: (oldData: any | undefined) => any): ImmutableTreeNode` - Update the data at the given node. Returns the new tree node that will replace this one.
-- `ImmutableTreeNode#insertChildWithData(data: any, index?: number): ImmutableTreeNode` - Inserts a child to the node. Index Defaults to the end of the list if unset. Returns the new child TreeNode.
+- `ImmutableTreeNode#insertChildWithData(data: any, index?: number): ImmutableTreeNode` - Inserts a child to the node. Index Defaults to the end of the list if unset. Returns the new tree node that will replace this one.
 - `ImmutableTreeNode#dangerouslyMutablyInsertChildWithData(data: any, index?: number): ImmutableTreeNode` - Same as insertChildWithData but does not replace itself. Use this to build the tree before it needs to be immutable.
 - `ImmutableTreeNode#remove(): ImmutableTreeNode` - Remove this node. Returns the removed node.
 

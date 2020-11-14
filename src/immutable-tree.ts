@@ -52,7 +52,7 @@ class ImmutableTreeNode<T> {
   /**
    * Inserts a child to the node.
    * @param index Defaults to the end of the list.
-   * @returns The new child TreeNode
+   * @returns The new tree node that will replace this one
    */
   public insertChildWithData(data: T, index: number = this.#children.length): ImmutableTreeNode<T> {
     this.assertNotDead();
@@ -65,14 +65,14 @@ class ImmutableTreeNode<T> {
     myReplacement.#children = children;
     this.replaceSelf(myReplacement);
     newChild.dispatch('immutabletree.createnode');
-    return newChild;
+    return myReplacement;
   }
 
   /**
    * Same as insertChildWithData but does not replace itself. Use this to build
    * the tree before it needs to be immutable.
    */
-  public dangerouslyMutablyInsertChildWithData(data: T, index: number = this.#children.length): ImmutableTreeNode<T> {
+  public dangerouslyMutablyInsertChildWithData(data: T, index: number = this.#children.length): this {
     this.assertNotDead();
     const newChild = new ImmutableTreeNode<T>(this.#tree, this, data, []);
 
@@ -81,7 +81,7 @@ class ImmutableTreeNode<T> {
     Object.freeze(children);
     this.#children = children;
     // newChild.dispatch('immutabletree.createnode');
-    return newChild;
+    return this;
   }
 
   // todo: a way to move nodes around in the tree?

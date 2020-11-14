@@ -14,14 +14,14 @@ declare class ImmutableTreeNode<T> {
     /**
      * Inserts a child to the node.
      * @param index Defaults to the end of the list.
-     * @returns The new child TreeNode
+     * @returns The new tree node that will replace this one
      */
     insertChildWithData(data: T, index?: number): ImmutableTreeNode<T>;
     /**
      * Same as insertChildWithData but does not replace itself. Use this to build
      * the tree before it needs to be immutable.
      */
-    dangerouslyMutablyInsertChildWithData(data: T, index?: number): ImmutableTreeNode<T>;
+    dangerouslyMutablyInsertChildWithData(data: T, index?: number): this;
     /**
      * Remove this node.
      * @returns The removed node
