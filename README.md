@@ -3,28 +3,84 @@
 An immutable tree structure because it's very difficult to correctly handle
 tree-like data in React. Despite the name, this can be used as a standalone
 library, or even (theoretically) with other JS frameworks. It's just called
-this because `immutable-tree` was already taken on npm.
+this because `immutable-tree` was already taken on npm (whoops!)
 
-An ImmutableTree is a tree structure that can have any number of ordered
-children. (Note: Deleting the first child in a node shifts the second child
-to the first position, so it's not a good fit for binary data where right/left
-child relationships matter.)
-
-It is a subclass of `EventTarget`, which makes it easy to subscribe to changes.
+An `ImmutableTree` is a tree structure that can have any number of ordered
+children. (Note: it's not a good fit for binary tree data where right/left child
+relationships matter, because deleting the first child in a node shifts the
+second child to the first position.) It is a subclass of `EventTarget`, which
+makes it easy to subscribe to changes.
 
 When a node changes, its ancestors are all replaced, but its siblings are not
-(the siblings' `.parent` property changes, it's the same object). That makes
-this library good for use with things like `React.memo()`.
+(the sibling's `.parent` property changes, but it's the same object). In the
+following image (adapted from [here](https://commons.wikimedia.org/wiki/File:Tree_(computer_science).svg))
+updating the purple node causes it, as well as all green nodes, to be replaced.
 
-Running the test suite requires Node 15 because Node only recently added
-EventTarget and I don't want to polyfill it just for the tests.
+![Image representing upward propagation of changes](https://raw.githubusercontent.com/mrjacobbloom/react-immutable-tree/master/tree-example.svg)
 
-## Example
+That makes this library compatible with things like `React.memo()`, which use a
+simple equality check to decide whether to re-render.
+
+## Getting started
+
+### Constructing your tree the easy way
+
+...that is, from JSON data. `ImmutableTree` provides a helper method, `parse`,
+which will construct a tree out of your tree-like data. Just provide:
+
+1. The object representing your root node
+1. A function that, given an object representing a node, returns
+  `{ data, children }` (the data object you want associated with the node in the
+  ImmutableTree, and an array of JSON data objects representing children yet to
+  be parsed)
 
 ```javascript
 import { ImmutableTree } from 'react-immutable-tree';
 
-/******* CONSTRUCTING/TRANSFORMING A TREE *******/
+function jsonDataToTree(jsonNode) {
+  return {
+    data: { firstName: jsonNode.firstName, lastName: jsonNode.lastName },
+    children: jsonNode.friends
+  }
+}
+const myTree = ImmutableTree.parse(JSON.parse("..."), jsonDataToTree);
+```
+
+### Using in a React app
+
+```jsx
+const NodeView = ({ node }) => (
+  <li>
+    {node.data.counter}
+    <Button onClick={() => node.remove()}>Delete this node</Button>
+    <Button onClick={() => node.setData({ counter: 0 })}>Reset this node</Button>
+    <Button onClick={() => node.updateData(oldData => ({ counter: oldData.counter + 1 }))}>Increment this node</Button>
+    <ul>
+      {node.children.map(child => (
+        <NodeView node={child} key={child.data.id}/>
+      ))}
+    </ul>
+  </li>
+);
+
+import { useTree } from 'react-immutable-tree/hook';
+const App = ({tree}) => {
+  const rootNode = useTree(tree);
+
+  return (
+    <ul>
+      <NodeView node={rootNode}/>
+    </ul>
+  );
+};
+
+ReactDOM.render(<App tree={myTree} />, document.getElementById('app'));
+```
+
+### Constructing/modifying your tree the harder way (manually)
+
+```javascript
+import { ImmutableTree } from 'react-immutable-tree';
 
 const tableOfContents = new ImmutableTree();
 tableOfContents.addRootWithData({ title: null });
@@ -52,50 +108,6 @@ myNode = myNode.remove(); // Same here
 
 // todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
 // (if I do add that, update the error message in assertNotDead to be more helpful)
-
-
-/******* CONSTRUCTING A TREE FROM JSON DATA *******/
-
-// There's a convenience function that will build a tree from plain JS objects
-// You just need to provide a function that tells ImmutableTree what a given object's data and children are
-function jsonDataToTree(jsonNode) {
-  return {
-    data: jsonNode.firstName,
-    children: jsonNode.friends
-  }
-}
-const myTree = ImmutableTree.parse(JSON.parse("..."), jsonDataToTree);
-```
-
-### Using in a React app
-
-```jsx
-const NodeView = ({ node }) => (
-  <li>
-    {node.data.counter}
-    <Button onClick={() => node.remove()}>Delete this node</Button>
-    <Button onClick={() => node.setData({ counter: 0 })}>Reset this node</Button>
-    <Button onClick={() => node.updateData(oldData => ({ counter: oldData.counter + 1 }))}>Increment this node</Button>
-    <ul>
-      {node.children.map(child => (
-        <NodeView node={child} key={child.data.counter}/>
-      ))}
-    </ul>
-  </li>
-);
-
-import { useTree } from 'react-immutable-tree/hook';
-const App = ({tree}) => {
-  const rootNode = useTree(tree);
-
-  return (
-    <ul>
-      <NodeView node={rootNode}/>
-    </ul>
-  );
-};
-
-ReactDOM.render(<App tree={myTree} />, document.getElementById('app'));
 ```
 
 
@@ -150,3 +162,8 @@ read-only.
 ### React hook
 
 - `useTree(tree: ImmutableTree): ImmutableTreeNode` - see example
+
+## Running tests
+
+Running the test suite requires Node 15 because Node only recently added
+`EventTarget` and I don't want to polyfill it just for the tests.
