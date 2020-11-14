@@ -2,11 +2,12 @@ const IS_INTERNAL = Symbol('IS_INTERNAL');
 
 type ImmutableTreeEventType =
   | 'immutabletree.updatenode'
-  | 'immutabletree.createnode'
-  | 'immutabletree.deletenode';
+  | 'immutabletree.insertchild'
+  | 'immutabletree.movenode'
+  | 'immutabletree.removenode';
 
 class ImmutableTreeEvent<T> extends Event {
-  constructor(type: ImmutableTreeEventType, public targetNode: ImmutableTreeNode<T>) {
+  constructor(type: ImmutableTreeEventType, public targetNode: ImmutableTreeNode<T> | null) {
     super(type);
   }
 }
@@ -45,7 +46,21 @@ class ImmutableTreeNode<T> {
     const myReplacement = this.clone();
     myReplacement.#data = newData;
     this.replaceSelf(myReplacement);
-    this.dispatch('immutabletree.updatenode');
+    myReplacement.dispatch('immutabletree.updatenode');
+    return myReplacement;
+  }
+
+  /**
+   * Set the data at the given node.
+   * @param newData
+   * @returns The new tree node that will replace this one
+   */
+  public setData(newData: T): ImmutableTreeNode<T> {
+    this.assertNotDead();
+    const myReplacement = this.clone();
+    myReplacement.#data = newData;
+    this.replaceSelf(myReplacement);
+    myReplacement.dispatch('immutabletree.updatenode');
     return myReplacement;
   }
 
@@ -64,7 +79,7 @@ class ImmutableTreeNode<T> {
     Object.freeze(children);
     myReplacement.#children = children;
     this.replaceSelf(myReplacement);
-    newChild.dispatch('immutabletree.createnode');
+    myReplacement.dispatch('immutabletree.insertchild');
     return myReplacement;
   }
 
@@ -84,14 +99,54 @@ class ImmutableTreeNode<T> {
     return this;
   }
 
-  // todo: a way to move nodes around in the tree?
   // todo: a way to delete without losing grandchildren?
+
+  /**
+   * Move this node to the given position.
+   * @param newParent Parent node to add to
+   * @param index Defaults to the end of the list.
+   * @returns Itself, since this operation does not technically modify this node
+   */
+  public moveTo(newParent: ImmutableTreeNode<T>, index: number = newParent.#children.length): this {
+    this.assertNotDead();
+
+    // Note: the below assertions are there to leave the design space open.
+    // Just because I can't think of a useful meaning for these operations right now doesn't mean there isn't one
+
+    // Assert this node is not root
+    if (!this.#parent) {
+      throw new Error('Attempted to move a TreeNode out of root position');
+    }
+
+    // Assert newParent is not this node or a descendant of this node
+    let current: ImmutableTreeNode<T> | null = newParent;
+    while(current) {
+      if (current === this) throw new Error('Attempted to move a TreeNode into itself or a descendant');
+      current = current.#parent;
+    }
+
+
+    const oldParent = this.#parent;
+    const oldParentReplacement = oldParent.clone();
+    oldParentReplacement.#children = Object.freeze(oldParentReplacement.#children.filter(child => child !== this));
+    oldParent.replaceSelf(oldParentReplacement);
+    // todo: figure out how to stop replaceSelf from running redundantly after it reaches oldParent and newParent's common ancestor
+    const newParentReplacement = newParent.clone();
+    const newParentChildren = newParentReplacement.#children.slice();
+    newParentChildren.splice(index, 0, this); // hey future me: this may be a deoptimization point to watch out for
+    Object.freeze(newParentChildren);
+    newParentReplacement.#children = newParentChildren;
+    newParent.replaceSelf(newParentReplacement);
+    this.dispatch('immutabletree.movenode');
+    return this;
+  }
 
   /**
    * Remove this node.
    * @returns The removed node
    */
   public remove(): this {
+    this.assertNotDead();
     if (this.#parent) {
       const parentReplacement = this.#parent.clone();
       parentReplacement.#children = Object.freeze(parentReplacement.#children.filter(child => child !== this));
@@ -101,7 +156,7 @@ class ImmutableTreeNode<T> {
     }
     this.#markedDead = true;
     // todo: recursively mark children as dead?
-    this.dispatch('immutabletree.deletenode');
+    this.dispatch('immutabletree.removenode');
     return this;
   }
 
@@ -109,12 +164,23 @@ class ImmutableTreeNode<T> {
    * Traverse the whole sub-tree until a matching node is found.
    */
   public findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null {
+    if (predicate(this.#data)) return this;
     for(const child of this.#children) {
       const found = child.findOne(predicate);
       if (found) return found;
     }
     return null;
   }
+
+  /**
+   * Prints the subtree starting at this node. Prints [DEAD] by each node that no
+   * longer exists in the tree.
+   */
+  public print(depth = 0): void {
+    const indent = '  '.repeat(depth);
+    console.log(indent + JSON.stringify(this.#data) + (this.#markedDead ? ' [DEAD]' : ''));
+    this.#children.forEach(child => child.print(depth + 1));
+  };
 
   /**
    * Create a clone of this node to replace itself with, so that object reference changes on update
@@ -145,7 +211,7 @@ class ImmutableTreeNode<T> {
    */
   private assertNotDead(): void {
     if(this.#markedDead) {
-      throw new Error(`Illegal attempt to modify a node that no longer exists`);
+      throw new Error('Illegal attempt to modify an old version of a node, or a node that no longer exists');
     }
   }
 
@@ -174,8 +240,23 @@ export class ImmutableTree<T> extends EventTarget /* will this break in Node? Wh
       throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
     }
     this.#root = new ImmutableTreeNode<T>(this, null, data, []);
-    this.dispatchEvent(new ImmutableTreeEvent('immutabletree.createnode', this.#root));
+    this.dispatchEvent(new ImmutableTreeEvent<T>('immutabletree.insertchild', null));
     return this.#root;
+  }
+
+  /**
+   * Traverse the whole tree until a matching node is found.
+   */
+  public findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null {
+    return this.#root ? this.#root.findOne(predicate) : null;
+  }
+
+  /**
+   * Prints the tree. Prints [DEAD] by each node that no longer exists in the
+   * tree.
+   */
+  public print(): void {
+    this.#root?.print(0);
   }
 
   /**
@@ -195,17 +276,11 @@ export class ImmutableTree<T> extends EventTarget /* will this break in Node? Wh
 
   private static parseHelper<POJO, T>(parent: ImmutableTreeNode<T>, pojo: POJO, transformer: (pojo: POJO) => { data: T, children: POJO[]}): void {
     const transformed = transformer(pojo);
-    const treeNode = parent.dangerouslyMutablyInsertChildWithData(transformed.data);
+    parent = parent.dangerouslyMutablyInsertChildWithData(transformed.data);
+    const treeNode = parent.children[parent.children.length - 1];
     for(const childPojo of transformed.children) {
       ImmutableTree.parseHelper(treeNode, childPojo, transformer);
     }
-  }
-
-  /**
-   * Traverse the whole tree until a matching node is found.
-   */
-  public findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null {
-    return this.#root ? this.#root.findOne(predicate) : null;
   }
 
   /**

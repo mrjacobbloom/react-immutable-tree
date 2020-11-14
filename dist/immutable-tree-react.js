@@ -6,12 +6,14 @@ export function useTree(tree) {
             setRootNode(tree.root);
         }
         tree.addEventListener('immutabletree.updatenode', handleRootChange);
-        tree.addEventListener('immutabletree.createnode', handleRootChange);
-        tree.addEventListener('immutabletree.deletenode', handleRootChange);
+        tree.addEventListener('immutabletree.insertchild', handleRootChange);
+        tree.addEventListener('immutabletree.movenode', handleRootChange);
+        tree.addEventListener('immutabletree.removenode', handleRootChange);
         return () => {
             tree.removeEventListener('immutabletree.updatenode', handleRootChange);
-            tree.removeEventListener('immutabletree.createnode', handleRootChange);
-            tree.removeEventListener('immutabletree.deletenode', handleRootChange);
+            tree.removeEventListener('immutabletree.insertchild', handleRootChange);
+            tree.removeEventListener('immutabletree.movenode', handleRootChange);
+            tree.removeEventListener('immutabletree.removenode', handleRootChange);
         };
     });
     return rootNode;

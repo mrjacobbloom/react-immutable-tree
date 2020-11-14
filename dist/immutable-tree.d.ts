@@ -12,6 +12,12 @@ declare class ImmutableTreeNode<T> {
      */
     updateData(updater: (oldData: Readonly<T> | undefined) => T): ImmutableTreeNode<T>;
     /**
+     * Set the data at the given node.
+     * @param newData
+     * @returns The new tree node that will replace this one
+     */
+    setData(newData: T): ImmutableTreeNode<T>;
+    /**
      * Inserts a child to the node.
      * @param index Defaults to the end of the list.
      * @returns The new tree node that will replace this one
@@ -23,6 +29,13 @@ declare class ImmutableTreeNode<T> {
      */
     dangerouslyMutablyInsertChildWithData(data: T, index?: number): this;
     /**
+     * Move this node to the given position.
+     * @param newParent Parent node to add to
+     * @param index Defaults to the end of the list.
+     * @returns Itself, since this operation does not technically modify this node
+     */
+    moveTo(newParent: ImmutableTreeNode<T>, index?: number): this;
+    /**
      * Remove this node.
      * @returns The removed node
      */
@@ -31,6 +44,11 @@ declare class ImmutableTreeNode<T> {
      * Traverse the whole sub-tree until a matching node is found.
      */
     findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;
+    /**
+     * Prints the subtree starting at this node. Prints [DEAD] by each node that no
+     * longer exists in the tree.
+     */
+    print(depth?: number): void;
     /**
      * Create a clone of this node to replace itself with, so that object reference changes on update
      */
@@ -60,6 +78,15 @@ export declare class ImmutableTree<T> extends EventTarget {
      */
     addRootWithData(data: T): ImmutableTreeNode<T>;
     /**
+     * Traverse the whole tree until a matching node is found.
+     */
+    findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;
+    /**
+     * Prints the tree. Prints [DEAD] by each node that no longer exists in the
+     * tree.
+     */
+    print(): void;
+    /**
      * Given a JS object representing your root node, and a function that can
      * convert a node into a { data, children } tuple, returns an ImmutableTree
      * representing the data.
@@ -69,10 +96,6 @@ export declare class ImmutableTree<T> extends EventTarget {
         children: POJO[];
     }): ImmutableTree<T>;
     private static parseHelper;
-    /**
-     * Traverse the whole tree until a matching node is found.
-     */
-    findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;
     /**
      * [INTERNAL, DO NOT USE] Update the tree's root.
      */
