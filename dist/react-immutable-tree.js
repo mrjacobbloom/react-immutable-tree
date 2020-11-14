@@ -13,10 +13,11 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _markedDead, _children, _parent, _data, _tree, _root;
 const IS_INTERNAL = Symbol('IS_INTERNAL');
-class ImmutableTreeEvent extends Event {
-    constructor(type, targetNode) {
+export class ImmutableTreeEvent extends Event {
+    constructor(type, targetNode, rootNode) {
         super(type);
         this.targetNode = targetNode;
+        this.rootNode = rootNode;
     }
 }
 class ImmutableTreeNode {
@@ -214,7 +215,7 @@ class ImmutableTreeNode {
      * Dispatch an event on the tree
      */
     dispatch(type) {
-        __classPrivateFieldGet(this, _tree).dispatchEvent(new ImmutableTreeEvent(type, this));
+        __classPrivateFieldGet(this, _tree).dispatchEvent(new ImmutableTreeEvent(type, this, __classPrivateFieldGet(this, _tree).root));
     }
 }
 _markedDead = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap(), _tree = new WeakMap();
@@ -237,7 +238,7 @@ export class ImmutableTree extends EventTarget /* will this break in Node? Who k
             throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
         }
         __classPrivateFieldSet(this, _root, new ImmutableTreeNode(this, null, data, []));
-        this.dispatchEvent(new ImmutableTreeEvent('immutabletree.insertchild', null));
+        this.dispatchEvent(new ImmutableTreeEvent('immutabletree.insertchild', null, __classPrivateFieldGet(this, _root)));
         return __classPrivateFieldGet(this, _root);
     }
     /**

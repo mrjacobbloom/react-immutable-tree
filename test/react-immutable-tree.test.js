@@ -158,6 +158,7 @@ describe('ImmutableTreeNode', () => {
       expect(stub.callCount).to.equal(1);
       expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].targetNode).to.equal(myTree.root.children[0]);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
   });
   describe('#setData()', () => {
@@ -193,6 +194,7 @@ describe('ImmutableTreeNode', () => {
       expect(stub.callCount).to.equal(1);
       expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].targetNode).to.equal(myTree.root.children[0]);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
   });
   describe('#insertChildWithData()', () => {
@@ -233,6 +235,8 @@ describe('ImmutableTreeNode', () => {
       expect(stub.callCount).to.equal(1);
       expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].targetNode).to.equal(myTree.root.children[0]);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
   });
   describe('#dangerouslyMutablyInsertChildWithData()', () => {
@@ -348,6 +352,7 @@ describe('ImmutableTreeNode', () => {
       expect(stub.callCount).to.equal(1);
       expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].targetNode).to.equal(myTree.root.children[0].children[1]);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
   });
   describe('#remove()', () => {
@@ -384,6 +389,7 @@ describe('ImmutableTreeNode', () => {
       expect(stub.callCount).to.equal(1);
       expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].targetNode).to.equal(node);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
   });
   describe('#findOne()', () => {

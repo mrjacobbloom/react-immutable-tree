@@ -6,8 +6,8 @@ type ImmutableTreeEventType =
   | 'immutabletree.movenode'
   | 'immutabletree.removenode';
 
-class ImmutableTreeEvent<T> extends Event {
-  constructor(type: ImmutableTreeEventType, public targetNode: ImmutableTreeNode<T> | null) {
+export class ImmutableTreeEvent<T> extends Event {
+  constructor(type: ImmutableTreeEventType, public targetNode: ImmutableTreeNode<T> | null, public rootNode: ImmutableTreeNode<T> | null) {
     super(type);
   }
 }
@@ -220,7 +220,7 @@ class ImmutableTreeNode<T> {
    * Dispatch an event on the tree
    */
   private dispatch(type: ImmutableTreeEventType) {
-    this.#tree.dispatchEvent(new ImmutableTreeEvent(type, this));
+    this.#tree.dispatchEvent(new ImmutableTreeEvent(type, this, this.#tree.root));
   }
 }
 
@@ -241,7 +241,7 @@ export class ImmutableTree<T> extends EventTarget /* will this break in Node? Wh
       throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
     }
     this.#root = new ImmutableTreeNode<T>(this, null, data, []);
-    this.dispatchEvent(new ImmutableTreeEvent<T>('immutabletree.insertchild', null));
+    this.dispatchEvent(new ImmutableTreeEvent<T>('immutabletree.insertchild', null, this.#root));
     return this.#root;
   }
 

@@ -1,4 +1,4 @@
-# react-immutable-tree
+# react-immutable-tree [![license](https://img.shields.io/npm/l/react-immutable-tree)](https://github.com/mrjacobbloom/echo/blob/master/LICENSE) [![npm](https://img.shields.io/npm/v/react-immutable-tree)](https://www.npmjs.com/package/react-immutable-tree)
 
 An immutable tree structure because it's very difficult to correctly handle
 tree-like data in React. Despite the name, this can be used as a standalone
@@ -14,12 +14,13 @@ makes it easy to subscribe to changes.
 When a node changes, its ancestors are all replaced, but its siblings are not
 (the sibling's `.parent` property changes, but it's the same object). In the
 following image (adapted from [here](https://commons.wikimedia.org/wiki/File:Tree_(computer_science).svg))
-updating the purple node causes it, as well as all green nodes, to be replaced.
+updating the purple node causes that node, as well as all green nodes, to be
+replaced. Orange nodes are reused.
 
 ![Image representing upward propagation of changes](https://raw.githubusercontent.com/mrjacobbloom/react-immutable-tree/main/tree-example.svg)
 
 That makes this library compatible with things like `React.memo()`, which use a
-simple equality check to decide whether to re-render.
+simple equality check to decide whether to re-render. Simply subscribe to changes to the tree and grab the new root object when those changes occur.
 
 ## Getting started
 
@@ -49,7 +50,7 @@ const myTree = ImmutableTree.parse(JSON.parse("..."), jsonDataToTree);
 ### Using in a React app
 
 ```jsx
-const NodeView = ({ node }) => (
+const NodeView = React.memo(({ node }) => (
   <li>
     {node.data.counter}
     <Button onClick={() => node.remove()}>Delete this node</Button>
@@ -61,7 +62,7 @@ const NodeView = ({ node }) => (
       ))}
     </ul>
   </li>
-);
+));
 
 import { useTree } from 'react-immutable-tree/hook';
 const App = ({tree}) => {
@@ -119,7 +120,8 @@ A subclass of `EventTarget`. Emmitted events may include:
 - `immutabletree.movenode`
 - `immutabletree.removenode`
 
-Each event has a `.targetNode` property containing the affected node.
+Each event has a `.targetNode` property containing the affected node and a
+`.rootNode` property containing the new root.
 
 #### Static Methods
 

@@ -1,4 +1,10 @@
 declare const IS_INTERNAL: unique symbol;
+declare type ImmutableTreeEventType = 'immutabletree.updatenode' | 'immutabletree.insertchild' | 'immutabletree.movenode' | 'immutabletree.removenode';
+export declare class ImmutableTreeEvent<T> extends Event {
+    targetNode: ImmutableTreeNode<T> | null;
+    rootNode: ImmutableTreeNode<T> | null;
+    constructor(type: ImmutableTreeEventType, targetNode: ImmutableTreeNode<T> | null, rootNode: ImmutableTreeNode<T> | null);
+}
 declare class ImmutableTreeNode<T> {
     #private;
     get children(): ReadonlyArray<ImmutableTreeNode<T>>;

@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 export function useTree(tree) {
     const [rootNode, setRootNode] = useState(tree.root);
     useEffect(() => {
-        function handleRootChange() {
-            setRootNode(tree.root);
-        }
+        const handleRootChange = (ev) => {
+            if ('rootNode' in ev) { // felt less expensive than a type guard function, idk
+                setRootNode(ev.rootNode);
+            }
+        };
         tree.addEventListener('immutabletree.updatenode', handleRootChange);
         tree.addEventListener('immutabletree.insertchild', handleRootChange);
         tree.addEventListener('immutabletree.movenode', handleRootChange);
