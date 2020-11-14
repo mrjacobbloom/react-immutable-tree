@@ -18,6 +18,11 @@ declare class ImmutableTreeNode<T> {
      */
     insertChildWithData(data: T, index?: number): ImmutableTreeNode<T>;
     /**
+     * Same as insertChildWithData but does not replace itself. Use this to build
+     * the tree before it needs to be immutable.
+     */
+    dangerouslyMutablyInsertChildWithData(data: T, index?: number): ImmutableTreeNode<T>;
+    /**
      * Remove this node.
      * @returns The removed node
      */
@@ -36,9 +41,22 @@ declare class ImmutableTreeNode<T> {
      * Traverse the whole sub-tree until a matching node is found.
      */
     findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;
+    /**
+     * Create a clone of this node to replace itself with, so that object reference changes on update
+     */
     private clone;
+    /**
+     * Connect parent and children to an updated version of this node
+     */
     private replaceSelf;
+    /**
+     * Throws if this node is marked dead. Used to ensure that no changes are made to old node objects.
+     */
     private assertNotDead;
+    /**
+     * Dispatch an event on the tree
+     */
+    private dispatch;
 }
 export declare class ImmutableTree<T> extends EventTarget {
     #private;
@@ -52,9 +70,22 @@ export declare class ImmutableTree<T> extends EventTarget {
      */
     addRootWithData(data: T): ImmutableTreeNode<T>;
     /**
+     * Given a JS object representing your root node, and a function that can
+     * convert a node into a { data, children } tuple, returns an ImmutableTree
+     * representing the data.
+     */
+    static parse<POJO, T>(rootPojo: POJO, transformer: (pojo: POJO) => {
+        data: T;
+        children: POJO[];
+    }): ImmutableTree<T>;
+    private static parseHelper;
+    /**
      * Traverse the whole tree until a matching node is found.
      */
     findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;
+    /**
+     * [INTERNAL, DO NOT USE] Update the tree's root.
+     */
     _changeRoot(newRoot: ImmutableTreeNode<T> | null, isInternal: typeof IS_INTERNAL): void;
 }
 export {};
