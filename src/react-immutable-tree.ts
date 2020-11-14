@@ -253,8 +253,7 @@ export class ImmutableTree<T> extends EventTarget /* will this break in Node? Wh
   }
 
   /**
-   * Prints the tree. Prints [DEAD] by each node that no longer exists in the
-   * tree.
+   * Prints the tree.
    */
   public print(): void {
     this.#root?.print(0);

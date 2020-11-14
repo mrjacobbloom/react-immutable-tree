@@ -133,7 +133,7 @@ Each event has a `.targetNode` property containing the affected node and a
 - `ImmutableTree#addRootWithData(data: any): ImmutableTreeNode` - Create a root
   node with the given data object. Returns said root.
 - `findOne(predicate: (data: any) => boolean): ImmutableTreeNode | null` - Traverse the whole tree until a matching node is found.
-- `print(): void` - Prints the whole tree. Prints `[DEAD]` by each node that no longer exists in the tree.
+- `print(): void` - Prints the whole tree.
 
 ### `ImmutableTreeNode`
 

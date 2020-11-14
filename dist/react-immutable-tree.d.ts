@@ -88,8 +88,7 @@ export declare class ImmutableTree<T> extends EventTarget {
      */
     findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;
     /**
-     * Prints the tree. Prints [DEAD] by each node that no longer exists in the
-     * tree.
+     * Prints the tree.
      */
     print(): void;
     /**

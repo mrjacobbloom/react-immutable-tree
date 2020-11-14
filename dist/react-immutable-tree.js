@@ -248,8 +248,7 @@ export class ImmutableTree extends EventTarget /* will this break in Node? Who k
         return __classPrivateFieldGet(this, _root) ? __classPrivateFieldGet(this, _root).findOne(predicate) : null;
     }
     /**
-     * Prints the tree. Prints [DEAD] by each node that no longer exists in the
-     * tree.
+     * Prints the tree.
      */
     print() {
         var _a;
