@@ -77,8 +77,26 @@ describe('ImmutableTree', () => {
 
 
 describe('ImmutableTreeNode', () => {
+  describe('#isStale', () => {
+    it('Getting for a non-stale node returns false', () => {
+      const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
+      expect(myTree.root.isStale).to.be.false;
+    });
+    it('Getting for a non-stale node returns false', () => {
+      const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
+      const node = myTree.root.children[0];
+      node.remove();
+      expect(node.isStale).to.be.true;
+    });
+    it('Setting throws', () => {
+      expect(() => {
+        const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
+        myTree.root.isStale = 'THIS VALUE DOES NOT MATTER BECAUSE SETTING THIS PORPERTY IS ILLEGAL';
+      }).to.throw();
+    });
+  });
   describe('#children', () => {
-    it('Getting works as expected', () => {
+    it('Getting on a non-stale node works as expected', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       expect(myTree.root.data).to.deep.equal({ "description": "Total", "time": { "start": 110.2, "end": 114.21 } });
       expect(myTree.root.children).to.have.length(3);
@@ -90,6 +108,14 @@ describe('ImmutableTreeNode', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       expect(Object.isFrozen(myTree.root.children)).to.be.true;
     });
+    it('Getting on stale node throws', () => {
+      expect(() => {
+        const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
+        const node = myTree.root.children[0];
+        node.remove();
+        node.children;
+      }).to.throw();
+    });
     it('Setting throws', () => {
       expect(() => {
         const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
@@ -98,10 +124,18 @@ describe('ImmutableTreeNode', () => {
     });
   });
   describe('#parent', () => {
-    it('Getting works as expected', () => {
+    it('Getting on non-stale node works as expected', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       expect(myTree.root.parent).to.be.null;
       expect(myTree.root.children[0].parent).to.equal(myTree.root);
+    });
+    it('Getting on stale node throws', () => {
+      expect(() => {
+        const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
+        const node = myTree.root.children[0];
+        node.remove();
+        node.parent;
+      }).to.throw();
     });
     it('Setting throws', () => {
       expect(() => {
@@ -111,9 +145,17 @@ describe('ImmutableTreeNode', () => {
     });
   });
   describe('#data', () => {
-    it('Getting works as expected', () => {
+    it('Getting on a non-stale node works as expected', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       expect(myTree.root.data).to.deep.equal({ "description": "Total", "time": { "start": 110.2, "end": 114.21 } });
+    });
+    it('Getting on stale node throws', () => {
+      expect(() => {
+        const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
+        const node = myTree.root.children[0];
+        node.remove();
+        node.data;
+      }).to.throw();
     });
     it('Setting throws', () => {
       expect(() => {
@@ -136,19 +178,21 @@ describe('ImmutableTreeNode', () => {
       const retVal = myTree.root.children[0].updateData(() => ({ description: 'UPDATED DESCRIPTION' }));
       expect(retVal).to.equal(myTree.root.children[0]);
     });
-    it('Marks old version of node and ancestors as "dead," and throws when called on dead node', () => {
+    it('Marks old version of node and ancestors as "stale," and throws when called on stale node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       const oldRoot = myTree.root;
       const oldChild = myTree.root.children[0];
       myTree.root.children[0].updateData(() => ({ description: 'UPDATED DESCRIPTION' }));
       expect(myTree.root).to.not.equal(oldRoot);
       expect(myTree.root.children[0]).to.not.equal(oldChild);
+      expect(oldRoot.isStale).to.be.true;
+      expect(oldChild.isStale).to.be.true;
       expect(() => {
         oldRoot.updateData(() => ({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldChild.updateData(() => ({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
     });
     it('Dispatches immutabletree.updatenode event with targetNode set to updated node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
@@ -172,19 +216,21 @@ describe('ImmutableTreeNode', () => {
       const retVal = myTree.root.children[0].setData({ description: 'UPDATED DESCRIPTION' });
       expect(retVal).to.equal(myTree.root.children[0]);
     });
-    it('Marks old version of node and ancestors as "dead," and throws when called on dead node', () => {
+    it('Marks old version of node and ancestors as "stale," and throws when called on stale node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       const oldRoot = myTree.root;
       const oldChild = myTree.root.children[0];
       myTree.root.children[0].setData({ description: 'UPDATED DESCRIPTION' });
       expect(myTree.root).to.not.equal(oldRoot);
       expect(myTree.root.children[0]).to.not.equal(oldChild);
+      expect(oldRoot.isStale).to.be.true;
+      expect(oldChild.isStale).to.be.true;
       expect(() => {
         oldRoot.setData(({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldChild.setData(({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
     });
     it('Dispatches immutabletree.updatenode event with targetNode set to updated node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
@@ -213,19 +259,21 @@ describe('ImmutableTreeNode', () => {
       const retVal = myTree.root.children[0].insertChildWithData({ description: 'NEW DESCRIPTION' });
       expect(retVal).to.equal(myTree.root.children[0]);
     });
-    it('Marks old version of node and ancestors as "dead," and throws when called on dead node', () => {
+    it('Marks old version of node and ancestors as "stale," and throws when called on stale node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       const oldRoot = myTree.root;
       const oldChild = myTree.root.children[0];
       myTree.root.children[0].insertChildWithData({ description: 'NEW DESCRIPTION' });
       expect(myTree.root).to.not.equal(oldRoot);
       expect(myTree.root.children[0]).to.not.equal(oldChild);
+      expect(oldRoot.isStale).to.be.true;
+      expect(oldChild.isStale).to.be.true;
       expect(() => {
         oldRoot.insertChildWithData(({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldChild.insertChildWithData(({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
     });
     it('Dispatches immutabletree.insertchild event with targetNode set to PARENT node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
@@ -257,13 +305,15 @@ describe('ImmutableTreeNode', () => {
       expect(retVal).to.equal(myTree.root.children[0]);
       expect(oldChild).to.equal(retVal);
     });
-    it('Does not mark anything "dead"', () => {
+    it('Does not mark anything "stale"', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       const oldRoot = myTree.root;
       const oldChild = myTree.root.children[0];
       myTree.root.children[0].dangerouslyMutablyInsertChildWithData({ description: 'NEW DESCRIPTION' });
       expect(myTree.root).to.equal(oldRoot);
       expect(myTree.root.children[0]).to.equal(oldChild);
+      expect(oldRoot.isStale).to.be.false;
+      expect(oldChild.isStale).to.be.false;
       expect(() => {
         oldRoot.dangerouslyMutablyInsertChildWithData(({ description: 'THIS VALUE IS NOT IMPORTANT, JUST MAKING SURE THAT THIS METHOD DOES NOT THORW' }));
       }).to.not.throw();
@@ -303,28 +353,28 @@ describe('ImmutableTreeNode', () => {
       const retVal = myTree.root.children[0].moveTo(myTree.root.children[1]);
       expect(retVal).to.equal(myTree.root.children[0].children[1]);
     });
-    it('Does not mark current node as dead', () => {
+    it('Does not mark current node as stale', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       const oldChild = myTree.root.children[0];
       myTree.root.children[0].moveTo(myTree.root.children[1]);
       expect(myTree.root.children[0].children[1]).to.equal(oldChild);
-      expect(() => {
-        myTree.root.children[0].setData({ description: 'THIS VALUE IS NOT IMPORTANT, JUST CHECKING THAT THIS FUNCTION DOES NOT THROW' });
-      }).to.not.throw();
+      expect(oldChild.isStale).to.be.false;
     });
-    it('Marks ancestors (of old and new position) as "dead," and throws when called on dead node', () => {
+    it('Marks ancestors (of old and new position) as "stale," and throws when called on stale node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       const oldOldParent = myTree.root.children[0];
       const oldNewParent = myTree.root.children[1];
       myTree.root.children[0].children[0].moveTo(myTree.root.children[1]);
       expect(myTree.root.children[0]).to.not.equal(oldOldParent);
       expect(myTree.root.children[1]).to.not.equal(oldNewParent);
+      expect(oldOldParent.isStale).to.be.true;
+      expect(oldNewParent.isStale).to.be.true;
       expect(() => {
         oldOldParent.moveTo(myTree.root);
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldNewParent.moveTo(myTree.root);
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
     });
     it('Throws for root', () => {
       expect(() => {
@@ -367,18 +417,20 @@ describe('ImmutableTreeNode', () => {
       const retVal = myTree.root.children[0].remove();
       expect(node).to.equal(retVal);
     });
-    it('Marks node and old version of ancestors as "dead," and throws when called on dead node', () => {
+    it('Marks node and old version of ancestors as "stale," and throws when called on stale node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       const oldRoot = myTree.root;
       const oldChild = myTree.root.children[0];
       myTree.root.children[0].remove();
       expect(myTree.root).to.not.equal(oldRoot);
+      expect(oldRoot.isStale).to.be.true;
+      expect(oldChild.isStale).to.be.true;
       expect(() => {
         oldRoot.remove();
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldChild.remove();
-      }).to.throw('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
     });
     it('Dispatches immutabletree.removenode event with targetNode set to removed node', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
@@ -421,7 +473,7 @@ describe('ImmutableTreeNode', () => {
       expect(consoleStub.args[0][0]).to.equal('{"time":{"start":110.2,"end":114.21},"description":"Total"}');
       expect(consoleStub.args[1][0]).to.equal('  {"time":{"start":0.5,"end":1.5},"description":"Grow The Plants"}');
     });
-    it('Prints [DEAD] for dead nodes', () => {
+    it('Prints [STALE] for stale nodes', () => {
       const myTree = ImmutableTree.parse(pojoData1(), pojoData1Parser);
       const oldRoot = myTree.root;
       oldRoot.setData({ description: 'UPDATED DESCRIPTION' });
@@ -429,7 +481,7 @@ describe('ImmutableTreeNode', () => {
       oldRoot.print();
       consoleStub.restore();
       expect(consoleStub.callCount).to.equal(19);
-      expect(consoleStub.args[0][0]).to.equal('{"time":{"start":110.2,"end":114.21},"description":"Total"} [DEAD]');
+      expect(consoleStub.args[0][0]).to.equal('{"time":{"start":110.2,"end":114.21},"description":"Total"} [STALE]');
     });
   });
 });

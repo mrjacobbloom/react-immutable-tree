@@ -7,6 +7,7 @@ export declare class ImmutableTreeEvent<T> extends Event {
 }
 declare class ImmutableTreeNode<T> {
     #private;
+    get isStale(): boolean;
     get children(): ReadonlyArray<ImmutableTreeNode<T>>;
     get parent(): ImmutableTreeNode<T> | null;
     get data(): T;
@@ -51,8 +52,7 @@ declare class ImmutableTreeNode<T> {
      */
     findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;
     /**
-     * Prints the subtree starting at this node. Prints [DEAD] by each node that no
-     * longer exists in the tree.
+     * Prints the subtree starting at this node. Prints [STALE] by each stale node.
      */
     print(depth?: number): void;
     /**
@@ -64,9 +64,9 @@ declare class ImmutableTreeNode<T> {
      */
     private replaceSelf;
     /**
-     * Throws if this node is marked dead. Used to ensure that no changes are made to old node objects.
+     * Throws if this node is marked stale. Used to ensure that no changes are made to old node objects.
      */
-    private assertNotDead;
+    private assertNotStale;
     /**
      * Dispatch an event on the tree
      */

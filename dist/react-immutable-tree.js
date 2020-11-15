@@ -11,7 +11,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     }
     return privateMap.get(receiver);
 };
-var _markedDead, _children, _parent, _data, _tree, _root;
+var _isStale, _children, _parent, _data, _tree, _root;
 const IS_INTERNAL = Symbol('IS_INTERNAL');
 export class ImmutableTreeEvent extends Event {
     constructor(type, targetNode, rootNode) {
@@ -26,8 +26,7 @@ class ImmutableTreeNode {
          * When a node is removed from the tree, markedDead = true, which makes
          * its update methods throw
          */
-        _markedDead.set(this, false);
-        // @todo: should markedDead be opaque? Should it throw when you access data/children/parent as well?
+        _isStale.set(this, false);
         // @todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
         // (if I do add that, update the error message in assertNotDead to be more helpful)
         _children.set(this, void 0);
@@ -39,11 +38,12 @@ class ImmutableTreeNode {
         __classPrivateFieldSet(this, _data, data);
         __classPrivateFieldSet(this, _children, Object.isFrozen(children) ? children : Object.freeze(children));
     }
-    get children() { return __classPrivateFieldGet(this, _children); }
+    get isStale() { return __classPrivateFieldGet(this, _isStale); }
+    get children() { this.assertNotStale(); return __classPrivateFieldGet(this, _children); }
     ;
-    get parent() { return __classPrivateFieldGet(this, _parent); }
+    get parent() { this.assertNotStale(); return __classPrivateFieldGet(this, _parent); }
     ;
-    get data() { return __classPrivateFieldGet(this, _data); }
+    get data() { this.assertNotStale(); return __classPrivateFieldGet(this, _data); }
     ;
     /**
      * Update the data at the given node.
@@ -51,7 +51,7 @@ class ImmutableTreeNode {
      * @returns The new tree node that will replace this one
      */
     updateData(updater) {
-        this.assertNotDead();
+        this.assertNotStale();
         const newData = updater(__classPrivateFieldGet(this, _data));
         const myReplacement = this.clone();
         __classPrivateFieldSet(myReplacement, _data, newData);
@@ -65,7 +65,7 @@ class ImmutableTreeNode {
      * @returns The new tree node that will replace this one
      */
     setData(newData) {
-        this.assertNotDead();
+        this.assertNotStale();
         const myReplacement = this.clone();
         __classPrivateFieldSet(myReplacement, _data, newData);
         this.replaceSelf(myReplacement);
@@ -78,7 +78,7 @@ class ImmutableTreeNode {
      * @returns The new tree node that will replace this one
      */
     insertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
-        this.assertNotDead();
+        this.assertNotStale();
         const newChild = new ImmutableTreeNode(__classPrivateFieldGet(this, _tree), this, data, []);
         const myReplacement = this.clone();
         const children = __classPrivateFieldGet(myReplacement, _children).slice();
@@ -94,7 +94,7 @@ class ImmutableTreeNode {
      * the tree before it needs to be immutable.
      */
     dangerouslyMutablyInsertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
-        this.assertNotDead();
+        this.assertNotStale();
         const newChild = new ImmutableTreeNode(__classPrivateFieldGet(this, _tree), this, data, []);
         const children = __classPrivateFieldGet(this, _children).slice();
         children.splice(index, 0, newChild); // hey future me: this may be a deoptimization point to watch out for
@@ -110,7 +110,7 @@ class ImmutableTreeNode {
      * @returns Itself, since this operation does not technically modify this node
      */
     moveTo(newParent, index = __classPrivateFieldGet(newParent, _children).length) {
-        this.assertNotDead();
+        this.assertNotStale();
         // Note: the below assertions are there to leave the design space open.
         // Just because I can't think of a useful meaning for these operations right now doesn't mean there isn't one
         // Assert this node is not root
@@ -143,7 +143,7 @@ class ImmutableTreeNode {
      * @returns The removed node
      */
     remove() {
-        this.assertNotDead();
+        this.assertNotStale();
         if (__classPrivateFieldGet(this, _parent)) {
             const parentReplacement = __classPrivateFieldGet(this, _parent).clone();
             __classPrivateFieldSet(parentReplacement, _children, Object.freeze(__classPrivateFieldGet(parentReplacement, _children).filter(child => child !== this)));
@@ -152,8 +152,8 @@ class ImmutableTreeNode {
         else {
             __classPrivateFieldGet(this, _tree)._changeRoot(null, IS_INTERNAL);
         }
-        __classPrivateFieldSet(this, _markedDead, true);
-        // todo: recursively mark children as dead?
+        __classPrivateFieldSet(this, _isStale, true);
+        // todo: recursively mark children as stale?
         this.dispatch('immutabletree.removenode');
         return this;
     }
@@ -171,12 +171,11 @@ class ImmutableTreeNode {
         return null;
     }
     /**
-     * Prints the subtree starting at this node. Prints [DEAD] by each node that no
-     * longer exists in the tree.
+     * Prints the subtree starting at this node. Prints [STALE] by each stale node.
      */
     print(depth = 0) {
         const indent = '  '.repeat(depth);
-        console.log(indent + JSON.stringify(__classPrivateFieldGet(this, _data)) + (__classPrivateFieldGet(this, _markedDead) ? ' [DEAD]' : ''));
+        console.log(indent + JSON.stringify(__classPrivateFieldGet(this, _data)) + (__classPrivateFieldGet(this, _isStale) ? ' [STALE]' : ''));
         __classPrivateFieldGet(this, _children).forEach(child => child.print(depth + 1));
     }
     ;
@@ -201,14 +200,14 @@ class ImmutableTreeNode {
         else {
             __classPrivateFieldGet(this, _tree)._changeRoot(myReplacement, IS_INTERNAL);
         }
-        __classPrivateFieldSet(this, _markedDead, true);
+        __classPrivateFieldSet(this, _isStale, true);
     }
     /**
-     * Throws if this node is marked dead. Used to ensure that no changes are made to old node objects.
+     * Throws if this node is marked stale. Used to ensure that no changes are made to old node objects.
      */
-    assertNotDead() {
-        if (__classPrivateFieldGet(this, _markedDead)) {
-            throw new Error('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+    assertNotStale() {
+        if (__classPrivateFieldGet(this, _isStale)) {
+            throw new Error('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
         }
     }
     /**
@@ -218,7 +217,7 @@ class ImmutableTreeNode {
         __classPrivateFieldGet(this, _tree).dispatchEvent(new ImmutableTreeEvent(type, this, __classPrivateFieldGet(this, _tree).root));
     }
 }
-_markedDead = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap(), _tree = new WeakMap();
+_isStale = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap(), _tree = new WeakMap();
 export class ImmutableTree extends EventTarget /* will this break in Node? Who knodes */ {
     constructor() {
         super(...arguments);

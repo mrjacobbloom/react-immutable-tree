@@ -138,15 +138,16 @@ Each event has a `.targetNode` property containing the affected node and a
 ### `ImmutableTreeNode`
 
 #### Properties
-- `ImmutableTreeNode#children: ImmutableTreeNode[]` - an array of child nodes
-- `ImmutableTreeNode#parent: ImmutableTreeNode | null` - the parent node, or null for the root
-- `ImmutableTreeNode#data: any` - the data associated with the node
+- `ImmutableTreeNode#isStale: boolean` - A node is stale if it has been removed from the tree or is an old version of the node.
+- `ImmutableTreeNode#children: ImmutableTreeNode[]` - A frozen array of child nodes. Accessing this will throw an error for stale nodes.
+- `ImmutableTreeNode#parent: ImmutableTreeNode | null` - The parent node, or null for the root. Accessing this will throw an error for stale nodes.
+- `ImmutableTreeNode#data: any` - The data associated with the node. Accessing this will throw an error for stale nodes.
 
 #### Transformation Methods
 
 Each of these methods returns the next version of the modified node (or itself,
 if the operation does not modify the node). The old version of the node is then
-marked dead, which means it'll throw an error if you try to modify it further.
+marked stale. Each of these functions will throw an error for stale nodes.
 
 - `ImmutableTreeNode#updateData(updater: (oldData: any | undefined) => any): ImmutableTreeNode` - Update the data at the given node. Returns the new tree node that will replace this one.
 - `ImmutableTreeNode#setData(newData: any): ImmutableTreeNode` - Set the data at the given node. Returns the new tree node that will replace this one.
@@ -158,7 +159,7 @@ marked dead, which means it'll throw an error if you try to modify it further.
 #### Traversal Methods
 
 - `findOne(predicate: (data: any) => boolean): ImmutableTreeNode | null` - Traverse the whole sub-tree until a matching node is found.
-- `print(): void` - Prints the sub-tree. Prints `[DEAD]` by each node that no longer exists in the tree.
+- `print(): void` - Prints the sub-tree. Prints `[STALE]` by each stale node.
 
 ### React hook
 

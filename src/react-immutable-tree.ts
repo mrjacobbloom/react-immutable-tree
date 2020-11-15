@@ -17,8 +17,7 @@ class ImmutableTreeNode<T> {
    * When a node is removed from the tree, markedDead = true, which makes
    * its update methods throw
    */
-  #markedDead: boolean = false;
-  // @todo: should markedDead be opaque? Should it throw when you access data/children/parent as well?
+  #isStale: boolean = false;
   // @todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
   // (if I do add that, update the error message in assertNotDead to be more helpful)
 
@@ -27,9 +26,25 @@ class ImmutableTreeNode<T> {
   #data: T;
   #tree: ImmutableTree<T>;
 
-  public get children(): ReadonlyArray<ImmutableTreeNode<T>> { return this.#children; };
-  public get parent(): ImmutableTreeNode<T> | null { return this.#parent; };
-  public get data(): T { return this.#data; };
+  /**
+   * A node is stale if it has been removed from the tree or is an old version of the node.
+   */
+  public get isStale(): boolean { return this.#isStale; }
+
+  /**
+   * A frozen array of child nodes. Accessing this will throw an error for stale nodes.
+   */
+  public get children(): ReadonlyArray<ImmutableTreeNode<T>> { this.assertNotStale(); return this.#children; };
+
+  /**
+   * The parent node, or null for the root. Accessing this will throw an error for stale nodes.
+   */
+  public get parent(): ImmutableTreeNode<T> | null { this.assertNotStale(); return this.#parent; };
+
+  /**
+   * The data associated with the node. Accessing this will throw an error for stale nodes.
+   */
+  public get data(): T { this.assertNotStale(); return this.#data; };
 
   constructor(tree: ImmutableTree<T>, parent: ImmutableTreeNode<T> | null, data: T, children: ImmutableTreeNode<T>[] | ReadonlyArray<ImmutableTreeNode<T>>) {
     this.#tree = tree;
@@ -44,7 +59,7 @@ class ImmutableTreeNode<T> {
    * @returns The new tree node that will replace this one
    */
   public updateData(updater: (oldData: Readonly<T> | undefined) => T): ImmutableTreeNode<T> {
-    this.assertNotDead();
+    this.assertNotStale();
     const newData = updater(this.#data);
     const myReplacement = this.clone();
     myReplacement.#data = newData;
@@ -59,7 +74,7 @@ class ImmutableTreeNode<T> {
    * @returns The new tree node that will replace this one
    */
   public setData(newData: T): ImmutableTreeNode<T> {
-    this.assertNotDead();
+    this.assertNotStale();
     const myReplacement = this.clone();
     myReplacement.#data = newData;
     this.replaceSelf(myReplacement);
@@ -73,7 +88,7 @@ class ImmutableTreeNode<T> {
    * @returns The new tree node that will replace this one
    */
   public insertChildWithData(data: T, index: number = this.#children.length): ImmutableTreeNode<T> {
-    this.assertNotDead();
+    this.assertNotStale();
     const newChild = new ImmutableTreeNode<T>(this.#tree, this, data, []);
 
     const myReplacement = this.clone();
@@ -91,7 +106,7 @@ class ImmutableTreeNode<T> {
    * the tree before it needs to be immutable.
    */
   public dangerouslyMutablyInsertChildWithData(data: T, index: number = this.#children.length): this {
-    this.assertNotDead();
+    this.assertNotStale();
     const newChild = new ImmutableTreeNode<T>(this.#tree, this, data, []);
 
     const children = this.#children.slice();
@@ -109,7 +124,7 @@ class ImmutableTreeNode<T> {
    * @returns Itself, since this operation does not technically modify this node
    */
   public moveTo(newParent: ImmutableTreeNode<T>, index: number = newParent.#children.length): this {
-    this.assertNotDead();
+    this.assertNotStale();
 
     // Note: the below assertions are there to leave the design space open.
     // Just because I can't think of a useful meaning for these operations right now doesn't mean there isn't one
@@ -147,7 +162,7 @@ class ImmutableTreeNode<T> {
    * @returns The removed node
    */
   public remove(): this {
-    this.assertNotDead();
+    this.assertNotStale();
     if (this.#parent) {
       const parentReplacement = this.#parent.clone();
       parentReplacement.#children = Object.freeze(parentReplacement.#children.filter(child => child !== this));
@@ -155,8 +170,8 @@ class ImmutableTreeNode<T> {
     } else {
       this.#tree._changeRoot(null, IS_INTERNAL);
     }
-    this.#markedDead = true;
-    // todo: recursively mark children as dead?
+    this.#isStale = true;
+    // todo: recursively mark children as stale?
     this.dispatch('immutabletree.removenode');
     return this;
   }
@@ -174,12 +189,11 @@ class ImmutableTreeNode<T> {
   }
 
   /**
-   * Prints the subtree starting at this node. Prints [DEAD] by each node that no
-   * longer exists in the tree.
+   * Prints the subtree starting at this node. Prints [STALE] by each stale node.
    */
   public print(depth = 0): void {
     const indent = '  '.repeat(depth);
-    console.log(indent + JSON.stringify(this.#data) + (this.#markedDead ? ' [DEAD]' : ''));
+    console.log(indent + JSON.stringify(this.#data) + (this.#isStale ? ' [STALE]' : ''));
     this.#children.forEach(child => child.print(depth + 1));
   };
 
@@ -204,15 +218,15 @@ class ImmutableTreeNode<T> {
     } else {
       this.#tree._changeRoot(myReplacement, IS_INTERNAL);
     }
-    this.#markedDead = true;
+    this.#isStale = true;
   }
 
   /**
-   * Throws if this node is marked dead. Used to ensure that no changes are made to old node objects.
+   * Throws if this node is marked stale. Used to ensure that no changes are made to old node objects.
    */
-  private assertNotDead(): void {
-    if(this.#markedDead) {
-      throw new Error('Illegal attempt to modify an old version of a node, or a node that no longer exists');
+  private assertNotStale(): void {
+    if(this.#isStale) {
+      throw new Error('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
     }
   }
 
