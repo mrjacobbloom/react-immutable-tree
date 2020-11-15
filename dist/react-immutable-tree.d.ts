@@ -5,11 +5,32 @@ export declare class ImmutableTreeEvent<T> extends Event {
     rootNode: ImmutableTreeNode<T> | null;
     constructor(type: ImmutableTreeEventType, targetNode: ImmutableTreeNode<T> | null, rootNode: ImmutableTreeNode<T> | null);
 }
+declare type Deserializer<POJO, T> = (pojo: POJO) => {
+    data: T;
+    children: POJO[];
+};
+declare type Serializer<POJO, T> = (data: T, children: POJO[]) => POJO;
+interface DefaultSerializedTreeNode<T> {
+    data: T;
+    children: DefaultSerializedTreeNode<T>[];
+}
 declare class ImmutableTreeNode<T> {
     #private;
+    /**
+     * A node is stale if it has been removed from the tree or is an old version of the node.
+     */
     get isStale(): boolean;
+    /**
+     * A frozen array of child nodes. Accessing this will throw an error for stale nodes.
+     */
     get children(): ReadonlyArray<ImmutableTreeNode<T>>;
+    /**
+     * The parent node, or null for the root. Accessing this will throw an error for stale nodes.
+     */
     get parent(): ImmutableTreeNode<T> | null;
+    /**
+     * The data associated with the node. Accessing this will throw an error for stale nodes.
+     */
     get data(): T;
     constructor(tree: ImmutableTree<T>, parent: ImmutableTreeNode<T> | null, data: T, children: ImmutableTreeNode<T>[] | ReadonlyArray<ImmutableTreeNode<T>>);
     /**
@@ -52,6 +73,16 @@ declare class ImmutableTreeNode<T> {
      */
     findOne(predicate: (data: T) => boolean): ImmutableTreeNode<T> | null;
     /**
+     * Transform the sub-tree into the default serailized format.
+     */
+    serialize(): DefaultSerializedTreeNode<T>;
+    /**
+     * Transform the sub-tree into a serialized format.
+     * @param transformer A function that can convert any node's data object
+     * and an array of its already-serialized children into a sirealized form.
+     */
+    serialize<POJO>(serializer: Serializer<POJO, T>): POJO;
+    /**
      * Prints the subtree starting at this node. Prints [STALE] by each stale node.
      */
     print(depth?: number): void;
@@ -92,15 +123,27 @@ export declare class ImmutableTree<T> extends EventTarget {
      */
     print(): void;
     /**
+     * Transform the sub-tree into the default serailized format.
+     */
+    serialize(): DefaultSerializedTreeNode<T>;
+    /**
+     * Transform the sub-tree into a serialized format.
+     * @param transformer A function that can convert any node's data object
+     * and an array of its already-serialized children into a sirealized form.
+     */
+    serialize<POJO>(serializer: Serializer<POJO, T>): POJO;
+    /**
+     * Given a JS object representing your root node in the default serialized
+     * format, returns an ImmutableTree representing the data.
+     */
+    static deserialize<T>(rootPojo: DefaultSerializedTreeNode<T>): ImmutableTree<T>;
+    /**
      * Given a JS object representing your root node, and a function that can
      * convert a node into a { data, children } tuple, returns an ImmutableTree
      * representing the data.
      */
-    static parse<POJO, T>(rootPojo: POJO, transformer: (pojo: POJO) => {
-        data: T;
-        children: POJO[];
-    }): ImmutableTree<T>;
-    private static parseHelper;
+    static deserialize<POJO, T>(rootPojo: POJO, deserializer: Deserializer<POJO, T>): ImmutableTree<T>;
+    private static deserializeHelper;
     /**
      * [INTERNAL, DO NOT USE] Update the tree's root.
      */

@@ -20,6 +20,8 @@ export class ImmutableTreeEvent extends Event {
         this.rootNode = rootNode;
     }
 }
+const defaultSerializer = (data, children) => ({ data, children });
+const defaultDeserializer = (pojo) => pojo;
 class ImmutableTreeNode {
     constructor(tree, parent, data, children) {
         /**
@@ -38,11 +40,23 @@ class ImmutableTreeNode {
         __classPrivateFieldSet(this, _data, data);
         __classPrivateFieldSet(this, _children, Object.isFrozen(children) ? children : Object.freeze(children));
     }
+    /**
+     * A node is stale if it has been removed from the tree or is an old version of the node.
+     */
     get isStale() { return __classPrivateFieldGet(this, _isStale); }
+    /**
+     * A frozen array of child nodes. Accessing this will throw an error for stale nodes.
+     */
     get children() { this.assertNotStale(); return __classPrivateFieldGet(this, _children); }
     ;
+    /**
+     * The parent node, or null for the root. Accessing this will throw an error for stale nodes.
+     */
     get parent() { this.assertNotStale(); return __classPrivateFieldGet(this, _parent); }
     ;
+    /**
+     * The data associated with the node. Accessing this will throw an error for stale nodes.
+     */
     get data() { this.assertNotStale(); return __classPrivateFieldGet(this, _data); }
     ;
     /**
@@ -170,6 +184,10 @@ class ImmutableTreeNode {
         }
         return null;
     }
+    serialize(serializer = defaultSerializer) {
+        const serializedChildren = __classPrivateFieldGet(this, _children).map(child => child.serialize(serializer));
+        return serializer(__classPrivateFieldGet(this, _data), serializedChildren);
+    }
     /**
      * Prints the subtree starting at this node. Prints [STALE] by each stale node.
      */
@@ -253,27 +271,26 @@ export class ImmutableTree extends EventTarget /* will this break in Node? Who k
         var _a;
         (_a = __classPrivateFieldGet(this, _root)) === null || _a === void 0 ? void 0 : _a.print(0);
     }
-    /**
-     * Given a JS object representing your root node, and a function that can
-     * convert a node into a { data, children } tuple, returns an ImmutableTree
-     * representing the data.
-     */
-    static parse(rootPojo, transformer) {
+    serialize(serializer = defaultSerializer) {
+        var _a, _b;
+        return (_b = (_a = __classPrivateFieldGet(this, _root)) === null || _a === void 0 ? void 0 : _a.serialize(serializer)) !== null && _b !== void 0 ? _b : null;
+    }
+    static deserialize(rootPojo, deserializer = defaultDeserializer) {
         const tree = new ImmutableTree();
-        const rootTransformed = transformer(rootPojo);
+        const rootTransformed = deserializer(rootPojo);
         tree.addRootWithData(rootTransformed.data);
         for (const childPojo of rootTransformed.children) {
-            ImmutableTree.parseHelper(__classPrivateFieldGet(tree, _root), childPojo, transformer);
+            ImmutableTree.deserializeHelper(__classPrivateFieldGet(tree, _root), childPojo, deserializer);
         }
         return tree;
     }
     ;
-    static parseHelper(parent, pojo, transformer) {
-        const transformed = transformer(pojo);
+    static deserializeHelper(parent, pojo, deserializer) {
+        const transformed = deserializer(pojo);
         parent = parent.dangerouslyMutablyInsertChildWithData(transformed.data);
         const treeNode = parent.children[parent.children.length - 1];
         for (const childPojo of transformed.children) {
-            ImmutableTree.parseHelper(treeNode, childPojo, transformer);
+            ImmutableTree.deserializeHelper(treeNode, childPojo, deserializer);
         }
     }
     /**

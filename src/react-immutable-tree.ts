@@ -12,6 +12,17 @@ export class ImmutableTreeEvent<T> extends Event {
   }
 }
 
+type Deserializer<POJO, T> = (pojo: POJO) => { data: T, children: POJO[]};
+type Serializer<POJO, T> = (data: T, children: POJO[]) => POJO;
+
+interface DefaultSerializedTreeNode<T> {
+  data: T;
+  children: DefaultSerializedTreeNode<T>[]
+}
+
+const defaultSerializer = <T>(data: T, children: DefaultSerializedTreeNode<T>[]) => ({ data, children });
+const defaultDeserializer = <T>(pojo: DefaultSerializedTreeNode<T>) => pojo;
+
 class ImmutableTreeNode<T> {
   /**
    * When a node is removed from the tree, markedDead = true, which makes
@@ -189,6 +200,21 @@ class ImmutableTreeNode<T> {
   }
 
   /**
+   * Transform the sub-tree into the default serailized format.
+   */
+  public serialize(): DefaultSerializedTreeNode<T>;
+  /**
+   * Transform the sub-tree into a serialized format.
+   * @param transformer A function that can convert any node's data object
+   * and an array of its already-serialized children into a sirealized form.
+   */
+  public serialize<POJO>(serializer: Serializer<POJO, T>): POJO;
+  public serialize<POJO>(serializer = defaultSerializer as unknown as Serializer<POJO, T>): POJO {
+    const serializedChildren = this.#children.map(child => child.serialize(serializer));
+    return serializer(this.#data, serializedChildren);
+  }
+
+  /**
    * Prints the subtree starting at this node. Prints [STALE] by each stale node.
    */
   public print(depth = 0): void {
@@ -274,26 +300,46 @@ export class ImmutableTree<T> extends EventTarget /* will this break in Node? Wh
   }
 
   /**
+   * Transform the sub-tree into the default serailized format.
+   */
+  public serialize(): DefaultSerializedTreeNode<T>;
+  /**
+   * Transform the sub-tree into a serialized format.
+   * @param transformer A function that can convert any node's data object
+   * and an array of its already-serialized children into a sirealized form.
+   */
+  public serialize<POJO>(serializer: Serializer<POJO, T>): POJO;
+  public serialize<POJO>(serializer = defaultSerializer as unknown as Serializer<POJO, T>): POJO | null {
+    return this.#root?.serialize(serializer) ?? null;
+  }
+
+  /**
+   * Given a JS object representing your root node in the default serialized
+   * format, returns an ImmutableTree representing the data.
+   */
+  public static deserialize<T>(rootPojo: DefaultSerializedTreeNode<T>): ImmutableTree<T>;
+  /**
    * Given a JS object representing your root node, and a function that can
    * convert a node into a { data, children } tuple, returns an ImmutableTree
    * representing the data.
    */
-  public static parse<POJO, T>(rootPojo: POJO, transformer: (pojo: POJO) => { data: T, children: POJO[]}): ImmutableTree<T> {
+  public static deserialize<POJO, T>(rootPojo: POJO, deserializer: Deserializer<POJO, T>): ImmutableTree<T>;
+  public static deserialize<POJO, T extends unknown>(rootPojo: POJO, deserializer = defaultDeserializer as unknown as Deserializer<POJO, T>): ImmutableTree<T> {
     const tree = new ImmutableTree<T>();
-    const rootTransformed = transformer(rootPojo);
+    const rootTransformed = deserializer(rootPojo);
     tree.addRootWithData(rootTransformed.data);
     for(const childPojo of rootTransformed.children) {
-      ImmutableTree.parseHelper(tree.#root!, childPojo, transformer);
+      ImmutableTree.deserializeHelper(tree.#root!, childPojo, deserializer);
     }
     return tree;
   };
 
-  private static parseHelper<POJO, T>(parent: ImmutableTreeNode<T>, pojo: POJO, transformer: (pojo: POJO) => { data: T, children: POJO[]}): void {
-    const transformed = transformer(pojo);
+  private static deserializeHelper<POJO, T>(parent: ImmutableTreeNode<T>, pojo: POJO, deserializer: Deserializer<POJO, T>): void {
+    const transformed = deserializer(pojo);
     parent = parent.dangerouslyMutablyInsertChildWithData(transformed.data);
     const treeNode = parent.children[parent.children.length - 1];
     for(const childPojo of transformed.children) {
-      ImmutableTree.parseHelper(treeNode, childPojo, transformer);
+      ImmutableTree.deserializeHelper(treeNode, childPojo, deserializer);
     }
   }
 

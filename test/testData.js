@@ -1,3 +1,4 @@
+// This data is in a "custom" serialuzatino format, so it requires a serializer/deserializer
 export function pojoData1() {
   return {
     "description": "Total",
@@ -162,9 +163,43 @@ export function pojoData1() {
   };
 }
 
-export function pojoData1Parser(pojo) {
+export function pojoData1Deserializer(pojo) {
   return {
     data: { time: pojo.time, description: pojo.description },
     children: pojo.children,
+  }
+}
+
+export function pojoData1Serializer(data, children) {
+  return {
+    description: data.description,
+    time: data.time,
+    children,
+  }
+}
+
+// This data is in the "default" serialization format
+export function pojoData2() {
+  return {
+    data: { name: 'Bob' },
+    children: [
+      {
+        data: { name: 'Bob Jr.' },
+        children: []
+      },
+      {
+        data: { name: 'Bob Jr. 2' },
+        children: [
+          {
+            data: { name: 'Bob Jr. 2 ||' },
+            children: []
+          },
+        ]
+      },
+      {
+        data: { name: 'Bob Jr. 3' },
+        children: []
+      },
+    ]
   }
 }
