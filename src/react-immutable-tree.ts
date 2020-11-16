@@ -23,7 +23,7 @@ interface DefaultSerializedTreeNode<T> {
 const defaultSerializer = <T>(data: T, children: DefaultSerializedTreeNode<T>[]) => ({ data, children });
 const defaultDeserializer = <T>(pojo: DefaultSerializedTreeNode<T>) => pojo;
 
-class ImmutableTreeNode<T> {
+export class ImmutableTreeNode<T> {
   /**
    * When a node is removed from the tree, markedDead = true, which makes
    * its update methods throw
@@ -57,7 +57,10 @@ class ImmutableTreeNode<T> {
    */
   public get data(): T { this.assertNotStale(); return this.#data; };
 
-  constructor(tree: ImmutableTree<T>, parent: ImmutableTreeNode<T> | null, data: T, children: ImmutableTreeNode<T>[] | ReadonlyArray<ImmutableTreeNode<T>>) {
+  constructor(isInternal: typeof IS_INTERNAL, tree: ImmutableTree<T>, parent: ImmutableTreeNode<T> | null, data: T, children: ImmutableTreeNode<T>[] | ReadonlyArray<ImmutableTreeNode<T>>) {
+    if(isInternal !== IS_INTERNAL) {
+      throw new Error('Illegal construction of ImmutableTreeNode');
+    }
     this.#tree = tree;
     this.#parent = parent;
     this.#data = data;
@@ -100,7 +103,7 @@ class ImmutableTreeNode<T> {
    */
   public insertChildWithData(data: T, index: number = this.#children.length): ImmutableTreeNode<T> {
     this.assertNotStale();
-    const newChild = new ImmutableTreeNode<T>(this.#tree, this, data, []);
+    const newChild = new ImmutableTreeNode<T>(IS_INTERNAL, this.#tree, this, data, []);
 
     const myReplacement = this.clone();
     const children = myReplacement.#children.slice();
@@ -118,7 +121,7 @@ class ImmutableTreeNode<T> {
    */
   public dangerouslyMutablyInsertChildWithData(data: T, index: number = this.#children.length): this {
     this.assertNotStale();
-    const newChild = new ImmutableTreeNode<T>(this.#tree, this, data, []);
+    const newChild = new ImmutableTreeNode<T>(IS_INTERNAL, this.#tree, this, data, []);
 
     const children = this.#children.slice();
     children.splice(index, 0, newChild); // hey future me: this may be a deoptimization point to watch out for
@@ -227,7 +230,7 @@ class ImmutableTreeNode<T> {
    * Create a clone of this node to replace itself with, so that object reference changes on update
    */
   private clone(): ImmutableTreeNode<T> {
-    return new ImmutableTreeNode<T>(this.#tree, this.#parent, this.#data, this.#children);
+    return new ImmutableTreeNode<T>(IS_INTERNAL, this.#tree, this.#parent, this.#data, this.#children);
   }
 
   /**
@@ -280,7 +283,7 @@ export class ImmutableTree<T> extends EventTarget /* will this break in Node? Wh
     if (this.#root) {
       throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
     }
-    this.#root = new ImmutableTreeNode<T>(this, null, data, []);
+    this.#root = new ImmutableTreeNode<T>(IS_INTERNAL, this, null, data, []);
     this.dispatchEvent(new ImmutableTreeEvent<T>('immutabletree.insertchild', null, this.#root));
     return this.#root;
   }

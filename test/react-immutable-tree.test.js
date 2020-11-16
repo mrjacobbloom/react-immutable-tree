@@ -4,7 +4,7 @@ import chai from 'chai';
 const expect = chai.expect;
 
 import { pojoData1, pojoData1Deserializer, pojoData1Serializer, pojoData2 } from './testData.js';
-import { ImmutableTree } from '../dist/react-immutable-tree.js';
+import { ImmutableTree, ImmutableTreeNode } from '../dist/react-immutable-tree.js';
 
 describe('ImmutableTree', () => {
   /** @type {ImmutableTree<{ description: string; time: { start: number; end: number; } }>} */let myTree;
@@ -97,6 +97,14 @@ describe('ImmutableTreeNode', () => {
   /** @type {ImmutableTree<{ description: string; time: { start: number; end: number; } }>} */let myTree;
   beforeEach(() => {
     myTree = ImmutableTree.deserialize(pojoData1(), pojoData1Deserializer);
+  });
+
+  describe('constructor', () => {
+    it('Throws an error', () => {
+      expect(() => {
+        new ImmutableTreeNode(null, myTree, null, { title: 'MY NEW NODE' }, []);
+      }).to.throw('Illegal construction of ImmutableTreeNode');
+    })
   });
 
   describe('#isStale', () => {

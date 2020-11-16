@@ -154,17 +154,23 @@ Each event has a `.targetNode` property containing the affected node and a
 
 ### `ImmutableTreeNode`
 
+An `ImmutableTreeNode` represents a node in the tree. They cannot be constructed
+directly.
+
+Changes to the tree will reult in the old version of a node being marked
+"stale." When a node is stale, attempts to read its data (except `isStale`) or
+modify it will throw an error.
+
 #### Properties
 - `isStale: boolean` - A node is stale if it has been removed from the tree or is an old version of the node.
-- `children: ImmutableTreeNode[]` - A frozen array of child nodes. Accessing this will throw an error for stale nodes.
-- `parent: ImmutableTreeNode | null` - The parent node, or null for the root. Accessing this will throw an error for stale nodes.
-- `data: any` - The data associated with the node. Accessing this will throw an error for stale nodes.
+- `children: ImmutableTreeNode[]` - A frozen array of child nodes.
+- `parent: ImmutableTreeNode | null` - The parent node, or null for the root.
+- `data: any` - The data associated with the node.
 
 #### Transformation Methods
 
 Each of these methods returns the next version of the modified node (or itself,
-if the operation does not modify the node). The old version of the node is then
-marked stale. Each of these functions will throw an error for stale nodes.
+if the operation does not modify the node).
 
 - `updateData(updater: (oldData: any | undefined) => any): ImmutableTreeNode` - Update the data at the given node. Returns the new tree node that will replace this one.
 - `setData(newData: any): ImmutableTreeNode` - Set the data at the given node. Returns the new tree node that will replace this one.

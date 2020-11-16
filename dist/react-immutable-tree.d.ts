@@ -14,7 +14,7 @@ interface DefaultSerializedTreeNode<T> {
     data: T;
     children: DefaultSerializedTreeNode<T>[];
 }
-declare class ImmutableTreeNode<T> {
+export declare class ImmutableTreeNode<T> {
     #private;
     /**
      * A node is stale if it has been removed from the tree or is an old version of the node.
@@ -32,7 +32,7 @@ declare class ImmutableTreeNode<T> {
      * The data associated with the node. Accessing this will throw an error for stale nodes.
      */
     get data(): T;
-    constructor(tree: ImmutableTree<T>, parent: ImmutableTreeNode<T> | null, data: T, children: ImmutableTreeNode<T>[] | ReadonlyArray<ImmutableTreeNode<T>>);
+    constructor(isInternal: typeof IS_INTERNAL, tree: ImmutableTree<T>, parent: ImmutableTreeNode<T> | null, data: T, children: ImmutableTreeNode<T>[] | ReadonlyArray<ImmutableTreeNode<T>>);
     /**
      * Update the data at the given node.
      * @param updater

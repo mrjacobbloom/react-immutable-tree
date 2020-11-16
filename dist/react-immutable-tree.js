@@ -22,8 +22,8 @@ export class ImmutableTreeEvent extends Event {
 }
 const defaultSerializer = (data, children) => ({ data, children });
 const defaultDeserializer = (pojo) => pojo;
-class ImmutableTreeNode {
-    constructor(tree, parent, data, children) {
+export class ImmutableTreeNode {
+    constructor(isInternal, tree, parent, data, children) {
         /**
          * When a node is removed from the tree, markedDead = true, which makes
          * its update methods throw
@@ -35,6 +35,9 @@ class ImmutableTreeNode {
         _parent.set(this, void 0);
         _data.set(this, void 0);
         _tree.set(this, void 0);
+        if (isInternal !== IS_INTERNAL) {
+            throw new Error('Illegal construction of ImmutableTreeNode');
+        }
         __classPrivateFieldSet(this, _tree, tree);
         __classPrivateFieldSet(this, _parent, parent);
         __classPrivateFieldSet(this, _data, data);
@@ -93,7 +96,7 @@ class ImmutableTreeNode {
      */
     insertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
         this.assertNotStale();
-        const newChild = new ImmutableTreeNode(__classPrivateFieldGet(this, _tree), this, data, []);
+        const newChild = new ImmutableTreeNode(IS_INTERNAL, __classPrivateFieldGet(this, _tree), this, data, []);
         const myReplacement = this.clone();
         const children = __classPrivateFieldGet(myReplacement, _children).slice();
         children.splice(index, 0, newChild); // hey future me: this may be a deoptimization point to watch out for
@@ -109,7 +112,7 @@ class ImmutableTreeNode {
      */
     dangerouslyMutablyInsertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
         this.assertNotStale();
-        const newChild = new ImmutableTreeNode(__classPrivateFieldGet(this, _tree), this, data, []);
+        const newChild = new ImmutableTreeNode(IS_INTERNAL, __classPrivateFieldGet(this, _tree), this, data, []);
         const children = __classPrivateFieldGet(this, _children).slice();
         children.splice(index, 0, newChild); // hey future me: this may be a deoptimization point to watch out for
         Object.freeze(children);
@@ -201,7 +204,7 @@ class ImmutableTreeNode {
      * Create a clone of this node to replace itself with, so that object reference changes on update
      */
     clone() {
-        return new ImmutableTreeNode(__classPrivateFieldGet(this, _tree), __classPrivateFieldGet(this, _parent), __classPrivateFieldGet(this, _data), __classPrivateFieldGet(this, _children));
+        return new ImmutableTreeNode(IS_INTERNAL, __classPrivateFieldGet(this, _tree), __classPrivateFieldGet(this, _parent), __classPrivateFieldGet(this, _data), __classPrivateFieldGet(this, _children));
     }
     /**
      * Connect parent and children to an updated version of this node
@@ -254,7 +257,7 @@ export class ImmutableTree extends EventTarget /* will this break in Node? Who k
         if (__classPrivateFieldGet(this, _root)) {
             throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
         }
-        __classPrivateFieldSet(this, _root, new ImmutableTreeNode(this, null, data, []));
+        __classPrivateFieldSet(this, _root, new ImmutableTreeNode(IS_INTERNAL, this, null, data, []));
         this.dispatchEvent(new ImmutableTreeEvent('immutabletree.insertchild', null, __classPrivateFieldGet(this, _root)));
         return __classPrivateFieldGet(this, _root);
     }
