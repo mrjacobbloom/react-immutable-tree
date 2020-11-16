@@ -5,12 +5,12 @@ export declare class ImmutableTreeEvent<T> extends Event {
     rootNode: ImmutableTreeNode<T> | null;
     constructor(type: ImmutableTreeEventType, targetNode: ImmutableTreeNode<T> | null, rootNode: ImmutableTreeNode<T> | null);
 }
-declare type Deserializer<POJO, T> = (pojo: POJO) => {
+export declare type Deserializer<POJO, T> = (pojo: POJO) => {
     data: T;
     children: POJO[];
 };
-declare type Serializer<POJO, T> = (data: T, children: POJO[]) => POJO;
-interface DefaultSerializedTreeNode<T> {
+export declare type Serializer<POJO, T> = (data: T, children: POJO[]) => POJO;
+export interface DefaultSerializedTreeNode<T> {
     data: T;
     children: DefaultSerializedTreeNode<T>[];
 }
