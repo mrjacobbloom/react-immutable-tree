@@ -2,7 +2,14 @@
   "name": "react-immutable-tree",
   "version": "0.4.0",
   "description": "An immutable tree structure because it's very difficult to correctly handle tree-like data in React",
-  "keywords": ["immutable", "tree", "tree-structure", "react", "reactjs", "react-hooks"],
+  "keywords": [
+    "immutable",
+    "tree",
+    "tree-structure",
+    "react",
+    "reactjs",
+    "react-hooks"
+  ],
   "main": "dist/react-immutable-tree.js",
   "type": "module",
   "exports": {
@@ -10,7 +17,7 @@
     "./react": "./dist/react-immutable-tree-hook.js"
   },
   "scripts": {
-    "build": "npx tsc",
+    "build": "npx rollup -c",
     "test": "npx mocha"
   },
   "repository": {
@@ -30,6 +37,8 @@
     "mocha": "^8.2.1",
     "react": "^17.0.1",
     "react-test-renderer": "^17.0.1",
+    "rollup": "^2.33.2",
+    "rollup-plugin-typescript2": "^0.29.0",
     "sinon": "^9.2.1",
     "typescript": "^4.0.5"
   }

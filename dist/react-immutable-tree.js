@@ -1,19 +1,36 @@
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+function __classPrivateFieldGet(receiver, privateMap) {
+    if (!privateMap.has(receiver)) {
+        throw new TypeError("attempted to get private field on non-instance");
+    }
+    return privateMap.get(receiver);
+}
+
+function __classPrivateFieldSet(receiver, privateMap, value) {
     if (!privateMap.has(receiver)) {
         throw new TypeError("attempted to set private field on non-instance");
     }
     privateMap.set(receiver, value);
     return value;
-};
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to get private field on non-instance");
-    }
-    return privateMap.get(receiver);
-};
+}
+
 var _isStale, _children, _parent, _data, _tree, _root;
 const IS_INTERNAL = Symbol('IS_INTERNAL');
-export class ImmutableTreeEvent extends Event {
+class ImmutableTreeEvent extends Event {
     constructor(type, targetNode, rootNode) {
         super(type);
         this.targetNode = targetNode;
@@ -22,7 +39,7 @@ export class ImmutableTreeEvent extends Event {
 }
 const defaultSerializer = (data, children) => ({ data, children });
 const defaultDeserializer = (pojo) => pojo;
-export class ImmutableTreeNode {
+class ImmutableTreeNode {
     constructor(isInternal, tree, parent, data, children) {
         /**
          * When a node is removed from the tree, markedDead = true, which makes
@@ -239,7 +256,7 @@ export class ImmutableTreeNode {
     }
 }
 _isStale = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap(), _tree = new WeakMap();
-export class ImmutableTree extends EventTarget /* will this break in Node? Who knodes */ {
+class ImmutableTree extends EventTarget /* will this break in Node? Who knodes */ {
     constructor() {
         super(...arguments);
         _root.set(this, null);
@@ -307,3 +324,5 @@ export class ImmutableTree extends EventTarget /* will this break in Node? Who k
     }
 }
 _root = new WeakMap();
+
+export { ImmutableTree, ImmutableTreeEvent, ImmutableTreeNode };

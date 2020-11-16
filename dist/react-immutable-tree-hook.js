@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-export function useTree(tree) {
+
+function useTree(tree) {
     const [rootNode, setRootNode] = useState(tree.root);
     useEffect(() => {
         const handleRootChange = (ev) => {
@@ -20,3 +21,5 @@ export function useTree(tree) {
     });
     return rootNode;
 }
+
+export { useTree };
