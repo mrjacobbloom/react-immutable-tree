@@ -1,6 +1,6 @@
 {
   "name": "react-immutable-tree",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "An immutable tree structure because it's very difficult to correctly handle tree-like data in React",
   "keywords": [
     "immutable",
