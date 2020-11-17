@@ -31,7 +31,7 @@ export class ImmutableTreeEvent<DataType> extends Event {
  * A function of this type can optionally be passed to {@link ImmutableTree.deserialize}
  * to tell it how to parse your serialized data. Not required if your serialized
  * data is already in `{ data, children }` (the default format of
- * {@link ImmutableTree#serialize}).
+ * {@link ImmutableTree.serialize}).
  * @typeParam SerializedType Your serialization format.
  * @typeParam DataType The type of the data object associated with a given node.
  */
@@ -49,8 +49,8 @@ export type Deserializer<SerializedType, DataType> = (serialized: SerializedType
 export type Serializer<SerializedType, DataType> = (data: DataType, children: SerializedType[]) => SerializedType;
 
 /**
- * The default serialization format for {@link ImmutableTree#serialize},
- * {@link ImmutableTreeNode#serialize}, and {@link ImmutableTree.deserialize}. If this
+ * The default serialization format for {@link ImmutableTree.serialize},
+ * {@link ImmutableTreeNode.serialize}, and {@link ImmutableTree.deserialize}. If this
  * is your preferred format, you don't need serializer/deserializer functions.
  * @typeParam DataType The type of the data object associated with a given node.
  */
@@ -499,6 +499,10 @@ export class ImmutableTree<DataType> extends EventTarget /* will this break in N
     return tree;
   };
 
+  /**
+   * Helper function to recursively deserialize a POJO tree
+   * @hidden
+   */
   private static deserializeHelper<SerializedType, DataType>(parent: ImmutableTreeNode<DataType>, pojo: SerializedType, deserializer: Deserializer<SerializedType, DataType>): void {
     const transformed = deserializer(pojo);
     parent = parent.dangerouslyMutablyInsertChildWithData(transformed.data);

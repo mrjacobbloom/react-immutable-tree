@@ -24,7 +24,7 @@
 
 Ƭ  **DefaultSerializedTreeNode**\<DataType>: { children: [DefaultSerializedTreeNode](_react_immutable_tree_.md#defaultserializedtreenode)\<DataType>[] ; data: DataType  }
 
-*Defined in [src/react-immutable-tree.ts:57](https://github.com/mrjacobbloom/react-immutable-tree/blob/48fb442/src/react-immutable-tree.ts#L57)*
+*Defined in [src/react-immutable-tree.ts:57](https://github.com/mrjacobbloom/react-immutable-tree/blob/05d5e32/src/react-immutable-tree.ts#L57)*
 
 The default serialization format for {@link ImmutableTree#serialize},
 {@link ImmutableTreeNode#serialize}, and [ImmutableTree.deserialize](../classes/_react_immutable_tree_.immutabletree.md#deserialize). If this
@@ -49,7 +49,7 @@ ___
 
 Ƭ  **Deserializer**\<SerializedType, DataType>: (serialized: SerializedType) => { children: SerializedType[] ; data: DataType  }
 
-*Defined in [src/react-immutable-tree.ts:38](https://github.com/mrjacobbloom/react-immutable-tree/blob/48fb442/src/react-immutable-tree.ts#L38)*
+*Defined in [src/react-immutable-tree.ts:38](https://github.com/mrjacobbloom/react-immutable-tree/blob/05d5e32/src/react-immutable-tree.ts#L38)*
 
 A function of this type can optionally be passed to [ImmutableTree.deserialize](../classes/_react_immutable_tree_.immutabletree.md#deserialize)
 to tell it how to parse your serialized data. Not required if your serialized
@@ -69,7 +69,7 @@ ___
 
 Ƭ  **ImmutableTreeEventType**: \"immutabletree.changed\" \| \"immutabletree.updatenode\" \| \"immutabletree.insertchild\" \| \"immutabletree.movenode\" \| \"immutabletree.removenode\"
 
-*Defined in [src/react-immutable-tree.ts:11](https://github.com/mrjacobbloom/react-immutable-tree/blob/48fb442/src/react-immutable-tree.ts#L11)*
+*Defined in [src/react-immutable-tree.ts:11](https://github.com/mrjacobbloom/react-immutable-tree/blob/05d5e32/src/react-immutable-tree.ts#L11)*
 
 The event types that `ImmutableTree` dispatches
 
@@ -79,7 +79,7 @@ ___
 
 Ƭ  **Serializer**\<SerializedType, DataType>: (data: DataType, children: SerializedType[]) => SerializedType
 
-*Defined in [src/react-immutable-tree.ts:49](https://github.com/mrjacobbloom/react-immutable-tree/blob/48fb442/src/react-immutable-tree.ts#L49)*
+*Defined in [src/react-immutable-tree.ts:49](https://github.com/mrjacobbloom/react-immutable-tree/blob/05d5e32/src/react-immutable-tree.ts#L49)*
 
 A function of this type can optionally be passed to [ImmutableTree.serialize](../classes/_react_immutable_tree_.immutabletree.md#serialize)
 or [ImmutableTreeNode.serialize](../classes/_react_immutable_tree_.immutabletreenode.md#serialize) to serialize the tree into a custom

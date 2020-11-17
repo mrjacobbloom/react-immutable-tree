@@ -405,6 +405,10 @@
             return tree;
         }
         ;
+        /**
+         * Helper function to recursively deserialize a POJO tree
+         * @hidden
+         */
         static deserializeHelper(parent, pojo, deserializer) {
             const transformed = deserializer(pojo);
             parent = parent.dangerouslyMutablyInsertChildWithData(transformed.data);
