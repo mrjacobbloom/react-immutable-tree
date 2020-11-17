@@ -7,43 +7,45 @@ declare const IS_INTERNAL: unique symbol;
 /**
  * The event types that `ImmutableTree` dispatches
  */
-declare type ImmutableTreeEventType = 'immutabletree.updatenode' | 'immutabletree.insertchild' | 'immutabletree.movenode' | 'immutabletree.removenode';
+declare type ImmutableTreeEventType = 'immutabletree.changed' | 'immutabletree.updatenode' | 'immutabletree.insertchild' | 'immutabletree.movenode' | 'immutabletree.removenode';
 /**
  * The `Event` subtype that `ImmutableTree` dispatches
- * @param DataType The type of the data object associated with a given node.
+ * @typeParam DataType The type of the data object associated with a given node.
+ * @hidden
  */
 export declare class ImmutableTreeEvent<DataType> extends Event {
     targetNode: ImmutableTreeNode<DataType> | null;
     rootNode: ImmutableTreeNode<DataType> | null;
+    type: ImmutableTreeEventType;
     constructor(type: ImmutableTreeEventType, targetNode: ImmutableTreeNode<DataType> | null, rootNode: ImmutableTreeNode<DataType> | null);
 }
 /**
- * A function of this type can optionally be passed to `ImmutableTree.deserialize`
+ * A function of this type can optionally be passed to {@link ImmutableTree.deserialize}
  * to tell it how to parse your serialized data. Not required if your serialized
  * data is already in `{ data, children }` (the default format of
- * `ImmutableTree#serialize()`).
- * @param SerializedType Your serialization format.
- * @param DataType The type of the data object associated with a given node.
+ * {@link ImmutableTree#serialize}).
+ * @typeParam SerializedType Your serialization format.
+ * @typeParam DataType The type of the data object associated with a given node.
  */
 export declare type Deserializer<SerializedType, DataType> = (serialized: SerializedType) => {
     data: DataType;
     children: SerializedType[];
 };
 /**
- * A function of this type can optionally be passed to `ImmutableTree#serialize()`
- * or `ImmutableTreeNode#serialize()` to serialize the tree into a custom
+ * A function of this type can optionally be passed to {@link ImmutableTree.serialize}
+ * or {@link ImmutableTreeNode.serialize} to serialize the tree into a custom
  * format. Not required if your preferred serialization format is
  * `{ data, children }` (the default format of
- * `ImmutableTree.deserialize()`).
- * @param SerializedType Your serialization format.
- * @param DataType The type of the data object associated with a given node.
+ * {@link ImmutableTree.deserialize}).
+ * @typeParam SerializedType Your serialization format.
+ * @typeParam DataType The type of the data object associated with a given node.
  */
 export declare type Serializer<SerializedType, DataType> = (data: DataType, children: SerializedType[]) => SerializedType;
 /**
- * The default serialization format for `ImmutableTree#serialize()`,
- * `ImmutableTreeNode#serialize()`, and `ImmutableTree.deserialize()`. If this
+ * The default serialization format for {@link ImmutableTree#serialize},
+ * {@link ImmutableTreeNode#serialize}, and {@link ImmutableTree.deserialize}. If this
  * is your preferred format, you don't need serializer/deserializer functions.
- * @param DataType The type of the data object associated with a given node.
+ * @typeParam DataType The type of the data object associated with a given node.
  */
 export declare type DefaultSerializedTreeNode<DataType> = {
     data: DataType;
@@ -58,8 +60,8 @@ export declare type DefaultSerializedTreeNode<DataType> = {
  *
  * Changes to the tree will result in the old version of a node being marked
  * "stale." When a node is stale, attempts to modify it or read its data (except
- * `isStale`) will throw an error.
- * @param DataType The type of the data object associated with a given node.
+ * {@link .isStale}) will throw an error.
+ * @typeParam DataType The type of the data object associated with a given node.
  */
 export declare class ImmutableTreeNode<DataType> {
     #private;
@@ -149,7 +151,7 @@ export declare class ImmutableTreeNode<DataType> {
      * Transform the sub-tree into a serialized format.
      * @param transformer A function that can convert any node's data object
      * and an array of its already-serialized children into a serialized form.
-     * @param SerializedType Your serialization format.
+     * @typeParam SerializedType Your serialization format.
      */
     serialize<SerializedType>(serializer: Serializer<SerializedType, DataType>): SerializedType;
     /**
@@ -188,11 +190,12 @@ export declare class ImmutableTreeNode<DataType> {
  * children are not (the siblings and children's .parent properties change, but
  * it's the same object).
  *
- * `ImmutableTree`s are not initialized with a root node. Use `addRootWithData`
+ * `ImmutableTree`s are not initialized with a root node. Use {@link .addRootWithData}
  * to create the root.
  *
  * It is a subclass of `EventTarget`. Emmitted events may include:
  *
+ * - `immutabletree.changed` - dispatched for all changes
  * - `immutabletree.updatenode`
  * - `immutabletree.insertchild` (note: `targetNode` is the parent)
  * - `immutabletree.movenode`
@@ -200,7 +203,7 @@ export declare class ImmutableTreeNode<DataType> {
  *
  * Each event has a `.targetNode` property containing the affected node and a
  * `.rootNode` property containing the new root.
- * @param DataType The type of the data object associated with a given node.
+ * @typeParam DataType The type of the data object associated with a given node.
  */
 export declare class ImmutableTree<DataType> extends EventTarget {
     #private;
@@ -237,7 +240,7 @@ export declare class ImmutableTree<DataType> extends EventTarget {
      * Transform the sub-tree into a serialized format.
      * @param transformer A function that can convert any node's data object
      * and an array of its already-serialized children into a serialized form.
-     * @param SerializedType Your serialization format.
+     * @typeParam SerializedType Your serialization format.
      */
     serialize<SerializedType>(serializer: Serializer<SerializedType, DataType>): SerializedType;
     /**
@@ -245,7 +248,7 @@ export declare class ImmutableTree<DataType> extends EventTarget {
      * format, returns an ImmutableTree representing the data.
      * @param rootSerialized A JS object representing your root node in
      * `{ data, children }` format.
-     * @param DataType The type of the data object associated with a given node.
+     * @typeParam DataType The type of the data object associated with a given node.
      */
     static deserialize<DataType>(rootSerialized: DefaultSerializedTreeNode<DataType>): ImmutableTree<DataType>;
     /**
@@ -256,8 +259,8 @@ export declare class ImmutableTree<DataType> extends EventTarget {
      * serialization format.
      * @param deserializer A function that can turn data in your serialization
      * format into a `{ data, children }` tuple.
-     * @param SerializedType Your serialization format.
-     * @param DataType The type of the data object associated with a given node.
+     * @typeParam SerializedType Your serialization format.
+     * @typeParam DataType The type of the data object associated with a given node.
      */
     static deserialize<SerializedType, DataType>(rootSerialized: SerializedType, deserializer: Deserializer<SerializedType, DataType>): ImmutableTree<DataType>;
     private static deserializeHelper;

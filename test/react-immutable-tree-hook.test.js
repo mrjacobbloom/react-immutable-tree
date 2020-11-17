@@ -63,17 +63,17 @@ describe('useTree', () => {
     expect(result.current).to.not.equal(oldRoot);
   });
 
-  it('Should add event listeners on mount and remove event listeners on unmount', () => {
+  it('Should add event listener on mount and remove event listener on unmount', () => {
     const ael = sinon.spy(myTree, 'addEventListener');
     const rel = sinon.spy(myTree, 'removeEventListener');
     const { unmount } = renderHook(() => useTree(myTree));
 
-    expect(ael.callCount).to.equal(4);
+    expect(ael.callCount).to.equal(1);
     expect(rel.callCount).to.equal(0);
 
     unmount();
 
-    expect(ael.callCount).to.equal(4);
-    expect(rel.callCount).to.equal(4);
+    expect(ael.callCount).to.equal(1);
+    expect(rel.callCount).to.equal(1);
   });
 });

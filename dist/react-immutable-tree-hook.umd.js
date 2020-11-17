@@ -8,7 +8,7 @@
    * A React hook. Given an `ImmutableTree`, returns its root node and triggers a
    * re-render when the tree updates.
    * @param tree Your `ImmutableTree`
-   * @param DataType The type of the data object associated with a given node.
+   * @typeParam DataType The type of the data object associated with a given node.
    * @returns The up-to-date root node of the tree
    * @example
    * ```jsx
@@ -48,15 +48,9 @@
                   setRootNode(ev.rootNode);
               }
           };
-          tree.addEventListener('immutabletree.updatenode', handleRootChange);
-          tree.addEventListener('immutabletree.insertchild', handleRootChange);
-          tree.addEventListener('immutabletree.movenode', handleRootChange);
-          tree.addEventListener('immutabletree.removenode', handleRootChange);
+          tree.addEventListener('immutabletree.changed', handleRootChange);
           return () => {
-              tree.removeEventListener('immutabletree.updatenode', handleRootChange);
-              tree.removeEventListener('immutabletree.insertchild', handleRootChange);
-              tree.removeEventListener('immutabletree.movenode', handleRootChange);
-              tree.removeEventListener('immutabletree.removenode', handleRootChange);
+              tree.removeEventListener('immutabletree.changed', handleRootChange);
           };
       });
       return rootNode;

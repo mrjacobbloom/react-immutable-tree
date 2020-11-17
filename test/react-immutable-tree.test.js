@@ -290,6 +290,14 @@ describe('ImmutableTreeNode', () => {
       expect(stub.args[0][0].targetNode).to.equal(myTree.root.children[0]);
       expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
+    it('Dispatches immutabletree.changed event', () => {
+      const stub = sinon.stub();
+      myTree.addEventListener('immutabletree.changed', stub);
+      myTree.root.children[0].updateData(() => ({ description: 'UPDATED DESCRIPTION' }));
+      expect(stub.callCount).to.equal(1);
+      expect(stub.args[0][0]).to.be.an.instanceOf(Event);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
+    });
   });
   describe('#setData()', () => {
     it('Works as expected', () => {
@@ -322,6 +330,14 @@ describe('ImmutableTreeNode', () => {
       expect(stub.callCount).to.equal(1);
       expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].targetNode).to.equal(myTree.root.children[0]);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
+    });
+    it('Dispatches immutabletree.changed event', () => {
+      const stub = sinon.stub();
+      myTree.addEventListener('immutabletree.changed', stub);
+      myTree.root.children[0].setData({ description: 'UPDATED DESCRIPTION' });
+      expect(stub.callCount).to.equal(1);
+      expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
   });
@@ -361,6 +377,13 @@ describe('ImmutableTreeNode', () => {
       expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].targetNode).to.equal(myTree.root.children[0]);
       expect(stub.args[0][0].rootNode).to.equal(myTree.root);
+    });
+    it('Dispatches immutabletree.changed event', () => {
+      const stub = sinon.stub();
+      myTree.addEventListener('immutabletree.changed', stub);
+      myTree.root.children[0].insertChildWithData({ description: 'NEW DESCRIPTION' });
+      expect(stub.callCount).to.equal(1);
+      expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
   });
@@ -397,6 +420,7 @@ describe('ImmutableTreeNode', () => {
     it('Does not dispatch events', () => {
       const stub = sinon.stub();
       myTree.addEventListener('immutabletree.insertchild', stub);
+      myTree.addEventListener('immutabletree.changed', stub);
       myTree.root.children[0].dangerouslyMutablyInsertChildWithData({ description: 'NEW DESCRIPTION' });
       expect(stub.callCount).to.equal(0);
     });
@@ -470,6 +494,14 @@ describe('ImmutableTreeNode', () => {
       expect(stub.args[0][0].targetNode).to.equal(myTree.root.children[0].children[1]);
       expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
+    it('Dispatches immutabletree.changed event', () => {
+      const stub = sinon.stub();
+      myTree.addEventListener('immutabletree.changed', stub);
+      myTree.root.children[0].moveTo(myTree.root.children[1]);
+      expect(stub.callCount).to.equal(1);
+      expect(stub.args[0][0]).to.be.an.instanceOf(Event);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
+    });
   });
   describe('#remove()', () => {
     it('Works as expected', () => {
@@ -503,6 +535,15 @@ describe('ImmutableTreeNode', () => {
       expect(stub.callCount).to.equal(1);
       expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].targetNode).to.equal(node);
+      expect(stub.args[0][0].rootNode).to.equal(myTree.root);
+    });
+    it('Dispatches immutabletree.changed event', () => {
+      const node = myTree.root.children[0];
+      const stub = sinon.stub();
+      myTree.addEventListener('immutabletree.changed', stub);
+      node.remove();
+      expect(stub.callCount).to.equal(1);
+      expect(stub.args[0][0]).to.be.an.instanceOf(Event);
       expect(stub.args[0][0].rootNode).to.equal(myTree.root);
     });
   });

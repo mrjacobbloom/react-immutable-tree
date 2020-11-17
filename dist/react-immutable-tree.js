@@ -37,7 +37,8 @@ var _tree, _isStale, _children, _parent, _data, _root;
 const IS_INTERNAL = Symbol('IS_INTERNAL');
 /**
  * The `Event` subtype that `ImmutableTree` dispatches
- * @param DataType The type of the data object associated with a given node.
+ * @typeParam DataType The type of the data object associated with a given node.
+ * @hidden
  */
 class ImmutableTreeEvent extends Event {
     constructor(type, targetNode, rootNode) {
@@ -65,8 +66,8 @@ const defaultDeserializer = (pojo) => pojo;
  *
  * Changes to the tree will result in the old version of a node being marked
  * "stale." When a node is stale, attempts to modify it or read its data (except
- * `isStale`) will throw an error.
- * @param DataType The type of the data object associated with a given node.
+ * {@link .isStale}) will throw an error.
+ * @typeParam DataType The type of the data object associated with a given node.
  */
 class ImmutableTreeNode {
     /**
@@ -312,6 +313,7 @@ class ImmutableTreeNode {
      */
     dispatch(type) {
         __classPrivateFieldGet(this, _tree).dispatchEvent(new ImmutableTreeEvent(type, this, __classPrivateFieldGet(this, _tree).root));
+        __classPrivateFieldGet(this, _tree).dispatchEvent(new ImmutableTreeEvent('immutabletree.changed', null, __classPrivateFieldGet(this, _tree).root));
     }
 }
 _tree = new WeakMap(), _isStale = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap();
@@ -325,11 +327,12 @@ _tree = new WeakMap(), _isStale = new WeakMap(), _children = new WeakMap(), _par
  * children are not (the siblings and children's .parent properties change, but
  * it's the same object).
  *
- * `ImmutableTree`s are not initialized with a root node. Use `addRootWithData`
+ * `ImmutableTree`s are not initialized with a root node. Use {@link .addRootWithData}
  * to create the root.
  *
  * It is a subclass of `EventTarget`. Emmitted events may include:
  *
+ * - `immutabletree.changed` - dispatched for all changes
  * - `immutabletree.updatenode`
  * - `immutabletree.insertchild` (note: `targetNode` is the parent)
  * - `immutabletree.movenode`
@@ -337,7 +340,7 @@ _tree = new WeakMap(), _isStale = new WeakMap(), _children = new WeakMap(), _par
  *
  * Each event has a `.targetNode` property containing the affected node and a
  * `.rootNode` property containing the new root.
- * @param DataType The type of the data object associated with a given node.
+ * @typeParam DataType The type of the data object associated with a given node.
  */
 class ImmutableTree extends EventTarget /* will this break in Node? Who knodes */ {
     constructor() {
@@ -366,6 +369,7 @@ class ImmutableTree extends EventTarget /* will this break in Node? Who knodes *
         }
         __classPrivateFieldSet(this, _root, new ImmutableTreeNode(IS_INTERNAL, this, null, data, []));
         this.dispatchEvent(new ImmutableTreeEvent('immutabletree.insertchild', null, __classPrivateFieldGet(this, _root)));
+        this.dispatchEvent(new ImmutableTreeEvent('immutabletree.changed', null, __classPrivateFieldGet(this, _root)));
         return __classPrivateFieldGet(this, _root);
     }
     /**
