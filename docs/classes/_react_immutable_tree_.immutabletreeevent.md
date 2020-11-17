@@ -61,7 +61,7 @@ Name | Description |
 
 \+ **new ImmutableTreeEvent**(`type`: [ImmutableTreeEventType](../modules/_react_immutable_tree_.md#immutabletreeeventtype), `targetNode`: [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null, `rootNode`: [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null): [ImmutableTreeEvent](_react_immutable_tree_.immutabletreeevent.md)
 
-*Defined in [src/react-immutable-tree.ts:21](https://github.com/mrjacobbloom/react-immutable-tree/blob/90d8872/src/react-immutable-tree.ts#L21)*
+*Defined in [src/react-immutable-tree.ts:21](https://github.com/mrjacobbloom/react-immutable-tree/blob/2eaaa6e/src/react-immutable-tree.ts#L21)*
 
 #### Parameters:
 
@@ -223,7 +223,7 @@ ___
 
 •  **rootNode**: [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
 
-*Defined in [src/react-immutable-tree.ts:22](https://github.com/mrjacobbloom/react-immutable-tree/blob/90d8872/src/react-immutable-tree.ts#L22)*
+*Defined in [src/react-immutable-tree.ts:22](https://github.com/mrjacobbloom/react-immutable-tree/blob/2eaaa6e/src/react-immutable-tree.ts#L22)*
 
 ___
 
@@ -255,7 +255,7 @@ ___
 
 •  **targetNode**: [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
 
-*Defined in [src/react-immutable-tree.ts:22](https://github.com/mrjacobbloom/react-immutable-tree/blob/90d8872/src/react-immutable-tree.ts#L22)*
+*Defined in [src/react-immutable-tree.ts:22](https://github.com/mrjacobbloom/react-immutable-tree/blob/2eaaa6e/src/react-immutable-tree.ts#L22)*
 
 ___
 

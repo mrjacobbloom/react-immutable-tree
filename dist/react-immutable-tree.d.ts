@@ -19,7 +19,7 @@ export declare class ImmutableTreeEvent<DataType> extends Event {
 }
 /**
  * A function of this type can optionally be passed to `ImmutableTree.deserialize`
- * to tell it how to parse your serialuzed data. Not required if your serialized
+ * to tell it how to parse your serialized data. Not required if your serialized
  * data is already in `{ data, children }` (the default format of
  * `ImmutableTree#serialize()`).
  * @param SerializedType Your serialization format.
@@ -45,10 +45,10 @@ export declare type Serializer<SerializedType, DataType> = (data: DataType, chil
  * is your preferred format, you don't need serializer/deserializer functions.
  * @param DataType The type of the data object associated with a given node.
  */
-export interface DefaultSerializedTreeNode<DataType> {
+export declare type DefaultSerializedTreeNode<DataType> = {
     data: DataType;
     children: DefaultSerializedTreeNode<DataType>[];
-}
+};
 /**
  * An `ImmutableTreeNode` represents a node in the tree. They cannot be
  * constructed directly.
