@@ -120,6 +120,9 @@
         insertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
             this.assertNotStale();
             const newChild = new ImmutableTreeNode(IS_INTERNAL, __classPrivateFieldGet(this, _tree), this, data, []);
+            if (__classPrivateFieldGet(this, _tree).nodeWillUpdate) {
+                __classPrivateFieldSet(newChild, _data, __classPrivateFieldGet(this, _tree).nodeWillUpdate(data, __classPrivateFieldGet(newChild, _children), null));
+            }
             const myReplacement = this.clone();
             const children = __classPrivateFieldGet(myReplacement, _children).slice();
             children.splice(index, 0, newChild); // hey future me: this may be a deoptimization point to watch out for
@@ -136,6 +139,9 @@
         dangerouslyMutablyInsertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
             this.assertNotStale();
             const newChild = new ImmutableTreeNode(IS_INTERNAL, __classPrivateFieldGet(this, _tree), this, data, []);
+            if (__classPrivateFieldGet(this, _tree).nodeWillUpdate) {
+                __classPrivateFieldSet(newChild, _data, __classPrivateFieldGet(this, _tree).nodeWillUpdate(data, __classPrivateFieldGet(newChild, _children), null));
+            }
             const children = __classPrivateFieldGet(this, _children).slice();
             children.splice(index, 0, newChild); // hey future me: this may be a deoptimization point to watch out for
             Object.freeze(children);
@@ -233,6 +239,9 @@
          * Connect parent and children to an updated version of this node
          */
         replaceSelf(myReplacement) {
+            if (__classPrivateFieldGet(this, _tree).nodeWillUpdate) {
+                __classPrivateFieldSet(myReplacement, _data, __classPrivateFieldGet(this, _tree).nodeWillUpdate(__classPrivateFieldGet(myReplacement, _data), __classPrivateFieldGet(myReplacement, _children), __classPrivateFieldGet(this, _children)));
+            }
             for (const child of __classPrivateFieldGet(this, _children)) {
                 __classPrivateFieldSet(child, _parent, myReplacement);
             }
@@ -266,6 +275,13 @@
         constructor() {
             super(...arguments);
             _root.set(this, null);
+            /**
+             * A function called on a node when it will update, including the node's
+             * initial creation or a parent updating due to a child's update. The returned
+             * value will be used as the updated data value for this node. This will not
+             * trigger any additional events.
+             */
+            this.nodeWillUpdate = null;
         }
         /**
          * The root node of the tree

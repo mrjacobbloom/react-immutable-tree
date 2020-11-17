@@ -139,6 +139,11 @@ A subclass of `EventTarget`. Emmitted events may include:
 Each event has a `.targetNode` property containing the affected node and a
 `.rootNode` property containing the new root.
 
+#### Properties
+
+- `nodeWillUpdate: null | (oldData: any | null, newChildren: ImmutableTreeNode[], oldChildren: ImmutableTreeNode[] | null) => any` - A function called on a node when it will update, including the node's initial creation or a parent updating due to a child's update. The returned value will be used as the updated data value for this node. This will not trigger any additional events.
+- `root: ImmutableTreeNode | null` - The root node, if one exists.
+
 #### Static Methods
 
 - `ImmutableTree.deserialize(rootPojo: yourObjectType, deserializer?: (pojo: yourObjectType) => { data: any, children: yourObjectType[]}): ImmutableTree` - Given a JS object representing your root node, and a function that can convert a node into a `{ data, children }` tuple, returns an ImmutableTree representing the data. The deserializer function is not required if your serialized objects are in `{ data, children }` form, which is the default format of `ImmutableTree#serialize()`.

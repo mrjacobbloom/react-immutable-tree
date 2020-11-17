@@ -3,7 +3,13 @@ import sinon from 'sinon';
 import chai from 'chai';
 const expect = chai.expect;
 
-import { pojoData1, pojoData1Deserializer, pojoData1Serializer, pojoData2 } from './testData.js';
+import {
+  pojoData1,
+  pojoData1Deserializer,
+  pojoData1Serializer,
+  pojoData1BeforeUpdateModifier,
+  pojoData2
+} from './testData.js';
 import { ImmutableTree, ImmutableTreeNode } from '../dist/react-immutable-tree.js';
 
 describe('ImmutableTree', () => {
@@ -28,6 +34,66 @@ describe('ImmutableTree', () => {
         const myTree = new ImmutableTree();
         myTree.root = 'THIS VALUE DOES NOT MATTER BECAUSE SETTING THIS PORPERTY IS ILLEGAL';
       }).to.throw();
+    });
+  });
+  describe('#nodeWillUpdate', () => {
+    it('Initially set to null', () => {
+      expect(myTree.nodeWillUpdate).to.be.null;
+    });
+
+    it('Does not generate any excess events', () => {
+      const beforeUpdateModifier = sinon.stub().callsFake(pojoData1BeforeUpdateModifier);
+      const handler1 = sinon.stub();
+      const handler2 = sinon.stub();
+      myTree.addEventListener('immutabletree.updatenode', handler1);
+      myTree.addEventListener('immutabletree.insertchild', handler2);
+      myTree.nodeWillUpdate = beforeUpdateModifier;
+      myTree.root.children[0].children[0].insertChildWithData({ description: 'Foo', time: { start: 0, end: 25 } });
+      expect(handler1.callCount).to.equal(0);
+      expect(handler2.callCount).to.equal(1);
+    });
+    it('Works as expected with setData', () => {
+      const beforeUpdateModifier = sinon.stub().callsFake(pojoData1BeforeUpdateModifier);
+      myTree.nodeWillUpdate = beforeUpdateModifier;
+      myTree.root.children[0].children[0].children[0].children[0].children[0].children[0].children[0].setData({ description: 'Foo', time: { start: 0, end: 25 } });
+      expect(beforeUpdateModifier.callCount).to.equal(8);
+      expect(myTree.root.data.time).to.deep.equal({ start: 109.7, end: 137.70999999999998 });
+    });
+    it('Works as expected with updateData', () => {
+      const beforeUpdateModifier = sinon.stub().callsFake(pojoData1BeforeUpdateModifier);
+      myTree.nodeWillUpdate = beforeUpdateModifier;
+      myTree.root.children[0].children[0].children[0].children[0].children[0].children[0].children[0].updateData(oldData => ({ ...oldData, time: { start: 0, end: 25 } }));
+      expect(beforeUpdateModifier.callCount).to.equal(8);
+      expect(myTree.root.data.time).to.deep.equal({ start: 109.7, end: 137.70999999999998 });
+    });
+    it('Works as expected with insertChildWithData', () => {
+      const beforeUpdateModifier = sinon.stub().callsFake(pojoData1BeforeUpdateModifier);
+      myTree.nodeWillUpdate = beforeUpdateModifier;
+      myTree.root.children[0].children[0].insertChildWithData({ description: 'Foo', time: { start: 0, end: 25 } });
+      expect(beforeUpdateModifier.callCount).to.equal(4);
+      expect(myTree.root.data.time).to.deep.equal({ start: 110.2, end: 139.20999999999998 });
+    });
+    it('Works as expected with dangerouslyMutablyInsertChildWithData', () => {
+      const beforeUpdateModifier = sinon.stub().callsFake(pojoData1BeforeUpdateModifier);
+      myTree.nodeWillUpdate = beforeUpdateModifier;
+      myTree.root.children[0].children[0].dangerouslyMutablyInsertChildWithData({ description: 'Foo', time: { start: 0, end: 25 } });
+      expect(beforeUpdateModifier.callCount).to.equal(1); // Only runs on new node since parents aren't replaced
+      expect(myTree.root.data.time).to.deep.equal({ start: 110.2, end: 114.21 });
+    });
+    it('Works as expected with moveTo (only runs on ancestors)', () => {
+      const beforeUpdateModifier = sinon.stub().callsFake(pojoData1BeforeUpdateModifier);
+      myTree.nodeWillUpdate = beforeUpdateModifier;
+      myTree.root.children[0].children[0].remove();
+      expect(beforeUpdateModifier.callCount).to.equal(2);
+      expect(myTree.root.data.time).to.deep.equal({ start: 109.7, end: 112.71 });
+    });
+    it('Works as expected with moveTo (only runs on ancestors)', () => {
+      const beforeUpdateModifier = sinon.stub().callsFake(pojoData1BeforeUpdateModifier);
+      myTree.nodeWillUpdate = beforeUpdateModifier;
+      myTree.root.children[0].children[0].moveTo(myTree.root.children[1]);
+      expect(beforeUpdateModifier.callCount).to.equal(4); // someday this'll change to 3
+      expect(myTree.root.children[0].data.time).to.deep.equal({ start: 0, end: 0 });
+      expect(myTree.root.children[1].data.time).to.deep.equal({ start: 109.7, end: 113.71 });
     });
   });
   describe('#addRootWithData()', () => {

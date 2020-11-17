@@ -178,6 +178,21 @@ export function pojoData1Serializer(data, children) {
   }
 }
 
+export function pojoData1BeforeUpdateModifier(oldData, newChildren, oldChildren) {
+  if (newChildren.length) {
+    let start = 0, end = 0;
+    newChildren.forEach(child => {
+      start += child.data.time.start;
+      end += child.data.time.end;
+    });
+    return {...oldData, time: { start, end }};
+  } else if (oldChildren?.length) {
+    return {...oldData, time: { start: 0, end: 0 }};
+  } else {
+    return oldData;
+  }
+}
+
 // This data is in the "default" serialization format
 export function pojoData2() {
   return {
