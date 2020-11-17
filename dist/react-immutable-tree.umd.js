@@ -373,7 +373,11 @@
             if (__classPrivateFieldGet(this, _root)) {
                 throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
             }
-            __classPrivateFieldSet(this, _root, new ImmutableTreeNode(IS_INTERNAL, this, null, data, []));
+            const children = [];
+            if (this.nodeWillUpdate) {
+                data = this.nodeWillUpdate(data, children, null);
+            }
+            __classPrivateFieldSet(this, _root, new ImmutableTreeNode(IS_INTERNAL, this, null, data, children));
             this.dispatchEvent(new ImmutableTreeEvent('immutabletree.insertchild', null, __classPrivateFieldGet(this, _root)));
             this.dispatchEvent(new ImmutableTreeEvent('immutabletree.changed', null, __classPrivateFieldGet(this, _root)));
             return __classPrivateFieldGet(this, _root);

@@ -25,7 +25,7 @@
 
 Ƭ  **DefaultSerializedTreeNode**\<DataType>: { children: [DefaultSerializedTreeNode](_react_immutable_tree_.md#defaultserializedtreenode)\<DataType>[] ; data: DataType  }
 
-*Defined in [src/react-immutable-tree.ts:63](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L63)*
+*Defined in [src/react-immutable-tree.ts:68](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L68)*
 
 The default serialization format for [ImmutableTree.serialize](../classes/_react_immutable_tree_.immutabletree.md#serialize),
 [ImmutableTreeNode.serialize](../classes/_react_immutable_tree_.immutabletreenode.md#serialize), and [ImmutableTree.deserialize](../classes/_react_immutable_tree_.immutabletree.md#deserialize). If this
@@ -50,7 +50,7 @@ ___
 
 Ƭ  **Deserializer**\<SerializedType, DataType>: (serialized: SerializedType) => { children: SerializedType[] ; data: DataType  }
 
-*Defined in [src/react-immutable-tree.ts:44](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L44)*
+*Defined in [src/react-immutable-tree.ts:49](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L49)*
 
 A function of this type can optionally be passed to [ImmutableTree.deserialize](../classes/_react_immutable_tree_.immutabletree.md#deserialize)
 to tell it how to parse your serialized data. Not required if your serialized
@@ -70,7 +70,7 @@ ___
 
 Ƭ  **ImmutableTreeEventType**: \"immutabletree.changed\" \| \"immutabletree.updatenode\" \| \"immutabletree.insertchild\" \| \"immutabletree.movenode\" \| \"immutabletree.removenode\"
 
-*Defined in [src/react-immutable-tree.ts:11](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L11)*
+*Defined in [src/react-immutable-tree.ts:11](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L11)*
 
 The event types that `ImmutableTree` dispatches
 
@@ -78,11 +78,19 @@ ___
 
 ### NodeWillUpdateCallback
 
-Ƭ  **NodeWillUpdateCallback**\<DataType>: (oldData: Readonly\<DataType> \| null, newChildren: ReadonlyArray\<[ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType>>, oldChildren: ReadonlyArray\<[ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType>> \| null) => DataType
+Ƭ  **NodeWillUpdateCallback**\<DataType>: (unmodifiedData: Readonly\<DataType>, newChildren: ReadonlyArray\<[ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType>>, oldChildren: ReadonlyArray\<[ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType>> \| null) => DataType
 
-*Defined in [src/react-immutable-tree.ts:34](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L34)*
+*Defined in [src/react-immutable-tree.ts:39](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L39)*
 
 The type of function you can set as [ImmutableTree.nodeWillUpdate](../classes/_react_immutable_tree_.immutabletree.md#nodewillupdate).
+
+**`param`** The data object that would've been associated with a
+given node if this function wasn't here to intercept it.
+
+**`param`** The new set of child nodes.
+
+**`param`** The set of child nodes from before whatever operation
+triggered this function to run.
 
 #### Type parameters:
 
@@ -96,7 +104,7 @@ ___
 
 Ƭ  **Serializer**\<SerializedType, DataType>: (data: DataType, children: SerializedType[]) => SerializedType
 
-*Defined in [src/react-immutable-tree.ts:55](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L55)*
+*Defined in [src/react-immutable-tree.ts:60](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L60)*
 
 A function of this type can optionally be passed to [ImmutableTree.serialize](../classes/_react_immutable_tree_.immutabletree.md#serialize)
 or [ImmutableTreeNode.serialize](../classes/_react_immutable_tree_.immutabletreenode.md#serialize) to serialize the tree into a custom

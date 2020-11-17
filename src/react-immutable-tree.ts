@@ -29,9 +29,14 @@ export class ImmutableTreeEvent<DataType> extends Event {
 
 /**
  * The type of function you can set as {@link ImmutableTree.nodeWillUpdate}.
+ * @param unmodifiedData The data object that would've been associated with a
+ * given node if this function wasn't here to intercept it.
+ * @param newChildren The new set of child nodes.
+ * @param oldChildren The set of child nodes from before whatever operation
+ * triggered this function to run.
  * @typeParam DataType The type of the data object associated with a given node.
  */
-export type NodeWillUpdateCallback<DataType> = (oldData: Readonly<DataType> | null, newChildren: ReadonlyArray<ImmutableTreeNode<DataType>>, oldChildren: ReadonlyArray<ImmutableTreeNode<DataType>> | null) => DataType;
+export type NodeWillUpdateCallback<DataType> = (unmodifiedData: Readonly<DataType>, newChildren: ReadonlyArray<ImmutableTreeNode<DataType>>, oldChildren: ReadonlyArray<ImmutableTreeNode<DataType>> | null) => DataType;
 
 /**
  * A function of this type can optionally be passed to {@link ImmutableTree.deserialize}
@@ -439,7 +444,11 @@ export class ImmutableTree<DataType> extends EventTarget /* will this break in N
     if (this.#root) {
       throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
     }
-    this.#root = new ImmutableTreeNode<DataType>(IS_INTERNAL, this, null, data, []);
+    const children: ImmutableTreeNode<DataType>[] = [];
+    if (this.nodeWillUpdate) {
+      data = this.nodeWillUpdate(data, children, null);
+    }
+    this.#root = new ImmutableTreeNode<DataType>(IS_INTERNAL, this, null, data, children);
     this.dispatchEvent(new ImmutableTreeEvent<DataType>('immutabletree.insertchild', null, this.#root));
     this.dispatchEvent(new ImmutableTreeEvent<DataType>('immutabletree.changed', null, this.#root));
     return this.#root;

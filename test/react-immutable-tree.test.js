@@ -52,6 +52,14 @@ describe('ImmutableTree', () => {
       expect(handler1.callCount).to.equal(0);
       expect(handler2.callCount).to.equal(1);
     });
+    it('Works as expected with insertRootWithData', () => {
+      const beforeUpdateModifier = sinon.stub().returns({ value: 'INJECTED DATA OBJECT' });
+      const myTree = new ImmutableTree();
+      myTree.nodeWillUpdate = beforeUpdateModifier;
+      myTree.addRootWithData({ value: 'ORIGINAL DATA OBJECT' });
+      expect(beforeUpdateModifier.callCount).to.equal(1);
+      expect(myTree.root.data).to.deep.equal({ value: 'INJECTED DATA OBJECT' });
+    });
     it('Works as expected with setData', () => {
       const beforeUpdateModifier = sinon.stub().callsFake(pojoData1BeforeUpdateModifier);
       myTree.nodeWillUpdate = beforeUpdateModifier;

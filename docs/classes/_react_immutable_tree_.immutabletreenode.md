@@ -51,7 +51,7 @@ Name | Description |
 
 • get **children**(): ReadonlyArray\<[ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType>>
 
-*Defined in [src/react-immutable-tree.ts:111](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L111)*
+*Defined in [src/react-immutable-tree.ts:116](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L116)*
 
 A frozen array of child nodes. Accessing this will throw an error if the node is stale.
 
@@ -63,7 +63,7 @@ ___
 
 • get **data**(): Readonly\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:123](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L123)*
+*Defined in [src/react-immutable-tree.ts:128](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L128)*
 
 The data associated with the node. Accessing this will throw an error if the node is stale.
 
@@ -75,7 +75,7 @@ ___
 
 • get **isStale**(): boolean
 
-*Defined in [src/react-immutable-tree.ts:105](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L105)*
+*Defined in [src/react-immutable-tree.ts:110](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L110)*
 
 A node is stale if it has been removed from the tree or is an old version of the node.
 
@@ -87,7 +87,7 @@ ___
 
 • get **parent**(): [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
 
-*Defined in [src/react-immutable-tree.ts:117](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L117)*
+*Defined in [src/react-immutable-tree.ts:122](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L122)*
 
 The parent node, or null for the root. Accessing this will throw an error if the node is stale.
 
@@ -99,7 +99,7 @@ The parent node, or null for the root. Accessing this will throw an error if the
 
 ▸ **dangerouslyMutablyInsertChildWithData**(`data`: DataType, `index?`: number): this
 
-*Defined in [src/react-immutable-tree.ts:211](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L211)*
+*Defined in [src/react-immutable-tree.ts:216](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L216)*
 
 Same as insertChildWithData but does not replace itself or fire any events.
 Use this to build the tree before it needs to be immutable. This method
@@ -122,7 +122,7 @@ ___
 
 ▸ **findOne**(`predicate`: (data: DataType) => boolean): [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
 
-*Defined in [src/react-immutable-tree.ts:289](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L289)*
+*Defined in [src/react-immutable-tree.ts:294](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L294)*
 
 Traverse the whole sub-tree until a matching node is found.
 
@@ -140,7 +140,7 @@ ___
 
 ▸ **insertChildWithData**(`data`: DataType, `index?`: number): [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:185](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L185)*
+*Defined in [src/react-immutable-tree.ts:190](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L190)*
 
 Inserts a child to the node. This method will throw an error if the node is
 stale.
@@ -162,7 +162,7 @@ ___
 
 ▸ **moveTo**(`newParent`: [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType>, `index?`: number): this
 
-*Defined in [src/react-immutable-tree.ts:233](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L233)*
+*Defined in [src/react-immutable-tree.ts:238](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L238)*
 
 Move this node to the given position. This method will throw an error if
 the node is stale.
@@ -184,7 +184,7 @@ ___
 
 ▸ **print**(): void
 
-*Defined in [src/react-immutable-tree.ts:318](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L318)*
+*Defined in [src/react-immutable-tree.ts:323](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L323)*
 
 Prints the subtree starting at this node. Prints [STALE] by each stale node.
 
@@ -196,7 +196,7 @@ ___
 
 ▸ **remove**(): this
 
-*Defined in [src/react-immutable-tree.ts:271](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L271)*
+*Defined in [src/react-immutable-tree.ts:276](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L276)*
 
 Remove this node from the tree. This method will throw an error if the node
 is stale.
@@ -211,7 +211,7 @@ ___
 
 ▸ **serialize**(): [DefaultSerializedTreeNode](../modules/_react_immutable_tree_.md#defaultserializedtreenode)\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:302](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L302)*
+*Defined in [src/react-immutable-tree.ts:307](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L307)*
 
 Transform the sub-tree into the default serialized format:
 `{ data, children }`.
@@ -220,7 +220,7 @@ Transform the sub-tree into the default serialized format:
 
 ▸ **serialize**\<SerializedType>(`serializer`: [Serializer](../modules/_react_immutable_tree_.md#serializer)\<SerializedType, DataType>): SerializedType
 
-*Defined in [src/react-immutable-tree.ts:309](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L309)*
+*Defined in [src/react-immutable-tree.ts:314](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L314)*
 
 Transform the sub-tree into a serialized format.
 
@@ -244,7 +244,7 @@ ___
 
 ▸ **setData**(`newData`: DataType): [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:169](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L169)*
+*Defined in [src/react-immutable-tree.ts:174](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L174)*
 
 Set the data at the given node. This method will throw an error if the node
 is stale.
@@ -265,7 +265,7 @@ ___
 
 ▸ **updateData**(`updater`: (oldData: Readonly\<DataType> \| undefined) => DataType): [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:153](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L153)*
+*Defined in [src/react-immutable-tree.ts:158](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree.ts#L158)*
 
 Update the data at the given node. This method will throw an error if the
 node is stale.

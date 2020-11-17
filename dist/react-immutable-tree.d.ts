@@ -21,9 +21,14 @@ export declare class ImmutableTreeEvent<DataType> extends Event {
 }
 /**
  * The type of function you can set as {@link ImmutableTree.nodeWillUpdate}.
+ * @param unmodifiedData The data object that would've been associated with a
+ * given node if this function wasn't here to intercept it.
+ * @param newChildren The new set of child nodes.
+ * @param oldChildren The set of child nodes from before whatever operation
+ * triggered this function to run.
  * @typeParam DataType The type of the data object associated with a given node.
  */
-export declare type NodeWillUpdateCallback<DataType> = (oldData: Readonly<DataType> | null, newChildren: ReadonlyArray<ImmutableTreeNode<DataType>>, oldChildren: ReadonlyArray<ImmutableTreeNode<DataType>> | null) => DataType;
+export declare type NodeWillUpdateCallback<DataType> = (unmodifiedData: Readonly<DataType>, newChildren: ReadonlyArray<ImmutableTreeNode<DataType>>, oldChildren: ReadonlyArray<ImmutableTreeNode<DataType>> | null) => DataType;
 /**
  * A function of this type can optionally be passed to {@link ImmutableTree.deserialize}
  * to tell it how to parse your serialized data. Not required if your serialized

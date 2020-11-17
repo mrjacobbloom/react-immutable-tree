@@ -16,7 +16,7 @@
 
 ▸ **useTree**\<DataType>(`tree`: [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType>): [ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
 
-*Defined in [src/react-immutable-tree-hook.ts:40](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree-hook.ts#L40)*
+*Defined in [src/react-immutable-tree-hook.ts:40](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree-hook.ts#L40)*
 
 A React hook. Given an `ImmutableTree`, returns its root node and triggers a
 re-render when the tree updates.
