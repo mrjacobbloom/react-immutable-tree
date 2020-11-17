@@ -34,8 +34,17 @@
         return value;
     }
 
-    var _isStale, _children, _parent, _data, _tree, _root;
+    var _tree, _isStale, _children, _parent, _data, _root;
+    /**
+     * Shibboleth to ensure that certain actions, like constructing an
+     * ImmutableTreeNode, are only done from trusted code.
+     * @hidden
+     */
     const IS_INTERNAL = Symbol('IS_INTERNAL');
+    /**
+     * The `Event` subtype that `ImmutableTree` dispatches
+     * @param DataType The type of the data object associated with a given node.
+     */
     class ImmutableTreeEvent extends Event {
         constructor(type, targetNode, rootNode) {
             super(type);
@@ -43,21 +52,45 @@
             this.rootNode = rootNode;
         }
     }
+    /**
+     * The default serializer function.
+     * @hidden
+     */
     const defaultSerializer = (data, children) => ({ data, children });
+    /**
+     * The default deserializer function.
+     * @hidden
+     */
     const defaultDeserializer = (pojo) => pojo;
+    /**
+     * An `ImmutableTreeNode` represents a node in the tree. They cannot be
+     * constructed directly.
+     *
+     * Each of the methods that modify the node return the next version of the
+     * modified node (or itself, if the operation does not modify the node).
+     *
+     * Changes to the tree will result in the old version of a node being marked
+     * "stale." When a node is stale, attempts to modify it or read its data (except
+     * `isStale`) will throw an error.
+     * @param DataType The type of the data object associated with a given node.
+     */
     class ImmutableTreeNode {
+        /**
+         * [INTERNAL, DO NOT USE] Construct a new `ImmutableTreeNode`.
+         * @hidden
+         */
         constructor(isInternal, tree, parent, data, children) {
-            /**
-             * When a node is removed from the tree, markedDead = true, which makes
-             * its update methods throw
-             */
-            _isStale.set(this, false);
             // @todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
             // (if I do add that, update the error message in assertNotDead to be more helpful)
-            _children.set(this, void 0);
-            _parent.set(this, void 0);
-            _data.set(this, void 0);
+            /**
+             * The `ImmutableTree` that this node is a part of.
+             * @hidden
+             */
             _tree.set(this, void 0);
+            /** @hidden */ _isStale.set(this, false);
+            /** @hidden */ _children.set(this, void 0);
+            /** @hidden */ _parent.set(this, void 0);
+            /** @hidden */ _data.set(this, void 0);
             if (isInternal !== IS_INTERNAL) {
                 throw new Error('Illegal construction of ImmutableTreeNode');
             }
@@ -71,24 +104,32 @@
          */
         get isStale() { return __classPrivateFieldGet(this, _isStale); }
         /**
-         * A frozen array of child nodes. Accessing this will throw an error for stale nodes.
+         * A frozen array of child nodes. Accessing this will throw an error if the node is stale.
          */
         get children() { this.assertNotStale(); return __classPrivateFieldGet(this, _children); }
         ;
         /**
-         * The parent node, or null for the root. Accessing this will throw an error for stale nodes.
+         * The parent node, or null for the root. Accessing this will throw an error if the node is stale.
          */
         get parent() { this.assertNotStale(); return __classPrivateFieldGet(this, _parent); }
         ;
         /**
-         * The data associated with the node. Accessing this will throw an error for stale nodes.
+         * The data associated with the node. Accessing this will throw an error if the node is stale.
          */
         get data() { this.assertNotStale(); return __classPrivateFieldGet(this, _data); }
         ;
         /**
-         * Update the data at the given node.
-         * @param updater
+         * Update the data at the given node. This method will throw an error if the
+         * node is stale.
+         * @param updater A function that, given the old data, can produce the next
+         * version of the data object to associate with this node.
          * @returns The new tree node that will replace this one
+         * @example
+         * You can use `updateData` to only change one property on the data object:
+         *
+         * ```javascript
+         * myNode.updateData(oldData => ({ ...oldData, myProp: 'new value' }))
+         * ```
          */
         updateData(updater) {
             this.assertNotStale();
@@ -100,8 +141,9 @@
             return myReplacement;
         }
         /**
-         * Set the data at the given node.
-         * @param newData
+         * Set the data at the given node. This method will throw an error if the node
+         * is stale.
+         * @param newData The new data object to associate with the node.
          * @returns The new tree node that will replace this one
          */
         setData(newData) {
@@ -113,9 +155,11 @@
             return myReplacement;
         }
         /**
-         * Inserts a child to the node.
+         * Inserts a child to the node. This method will throw an error if the node is
+         * stale.
+         * @param data The data associated with the new child.
          * @param index Defaults to the end of the list.
-         * @returns The new tree node that will replace this one
+         * @returns The new tree node that will replace this one (NOT the new child).
          */
         insertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
             this.assertNotStale();
@@ -133,8 +177,12 @@
             return myReplacement;
         }
         /**
-         * Same as insertChildWithData but does not replace itself. Use this to build
-         * the tree before it needs to be immutable.
+         * Same as insertChildWithData but does not replace itself or fire any events.
+         * Use this to build the tree before it needs to be immutable. This method
+         * will throw an error if the node is stale.
+         * @param data The data associated with the new child.
+         * @param index Defaults to the end of the list.
+         * @returns This node
          */
         dangerouslyMutablyInsertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
             this.assertNotStale();
@@ -146,11 +194,11 @@
             children.splice(index, 0, newChild); // hey future me: this may be a deoptimization point to watch out for
             Object.freeze(children);
             __classPrivateFieldSet(this, _children, children);
-            // newChild.dispatch('immutabletree.createnode');
             return this;
         }
         /**
-         * Move this node to the given position.
+         * Move this node to the given position. This method will throw an error if
+         * the node is stale.
          * @param newParent Parent node to add to
          * @param index Defaults to the end of the list.
          * @returns Itself, since this operation does not technically modify this node
@@ -185,7 +233,8 @@
             return this;
         }
         /**
-         * Remove this node.
+         * Remove this node from the tree. This method will throw an error if the node
+         * is stale.
          * @returns The removed node
          */
         remove() {
@@ -220,9 +269,6 @@
             const serializedChildren = __classPrivateFieldGet(this, _children).map(child => child.serialize(serializer));
             return serializer(__classPrivateFieldGet(this, _data), serializedChildren);
         }
-        /**
-         * Prints the subtree starting at this node. Prints [STALE] by each stale node.
-         */
         print(depth = 0) {
             const indent = '  '.repeat(depth);
             console.log(indent + JSON.stringify(__classPrivateFieldGet(this, _data)) + (__classPrivateFieldGet(this, _isStale) ? ' [STALE]' : ''));
@@ -231,12 +277,14 @@
         ;
         /**
          * Create a clone of this node to replace itself with, so that object reference changes on update
+         * @hidden
          */
         clone() {
             return new ImmutableTreeNode(IS_INTERNAL, __classPrivateFieldGet(this, _tree), __classPrivateFieldGet(this, _parent), __classPrivateFieldGet(this, _data), __classPrivateFieldGet(this, _children));
         }
         /**
          * Connect parent and children to an updated version of this node
+         * @hidden
          */
         replaceSelf(myReplacement) {
             if (__classPrivateFieldGet(this, _tree).nodeWillUpdate) {
@@ -257,6 +305,7 @@
         }
         /**
          * Throws if this node is marked stale. Used to ensure that no changes are made to old node objects.
+         * @hidden
          */
         assertNotStale() {
             if (__classPrivateFieldGet(this, _isStale)) {
@@ -265,16 +314,40 @@
         }
         /**
          * Dispatch an event on the tree
+         * @hidden
          */
         dispatch(type) {
             __classPrivateFieldGet(this, _tree).dispatchEvent(new ImmutableTreeEvent(type, this, __classPrivateFieldGet(this, _tree).root));
         }
     }
-    _isStale = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap(), _tree = new WeakMap();
+    _tree = new WeakMap(), _isStale = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap();
+    /**
+     * An `ImmutableTree` is a tree structure that can have any number of ordered
+     * children. (Note: it's not a good fit for binary tree data where right/left
+     * child relationships matter, because deleting the first child in a node shifts
+     * the second child to the first position.)
+     *
+     * When a node changes, its ancestors are all replaced, but its siblings and
+     * children are not (the siblings and children's .parent properties change, but
+     * it's the same object).
+     *
+     * `ImmutableTree`s are not initialized with a root node. Use `addRootWithData`
+     * to create the root.
+     *
+     * It is a subclass of `EventTarget`. Emmitted events may include:
+     *
+     * - `immutabletree.updatenode`
+     * - `immutabletree.insertchild` (note: `targetNode` is the parent)
+     * - `immutabletree.movenode`
+     * - `immutabletree.removenode`
+     *
+     * Each event has a `.targetNode` property containing the affected node and a
+     * `.rootNode` property containing the new root.
+     * @param DataType The type of the data object associated with a given node.
+     */
     class ImmutableTree extends EventTarget /* will this break in Node? Who knodes */ {
         constructor() {
             super(...arguments);
-            _root.set(this, null);
             /**
              * A function called on a node when it will update, including the node's
              * initial creation or a parent updating due to a child's update. The returned
@@ -282,6 +355,7 @@
              * trigger any additional events.
              */
             this.nodeWillUpdate = null;
+            /** @hidden */ _root.set(this, null);
         }
         /**
          * The root node of the tree
@@ -317,9 +391,9 @@
             var _a, _b;
             return (_b = (_a = __classPrivateFieldGet(this, _root)) === null || _a === void 0 ? void 0 : _a.serialize(serializer)) !== null && _b !== void 0 ? _b : null;
         }
-        static deserialize(rootPojo, deserializer = defaultDeserializer) {
+        static deserialize(rootSerialized, deserializer = defaultDeserializer) {
             const tree = new ImmutableTree();
-            const rootTransformed = deserializer(rootPojo);
+            const rootTransformed = deserializer(rootSerialized);
             tree.addRootWithData(rootTransformed.data);
             for (const childPojo of rootTransformed.children) {
                 ImmutableTree.deserializeHelper(__classPrivateFieldGet(tree, _root), childPojo, deserializer);
@@ -337,6 +411,7 @@
         }
         /**
          * [INTERNAL, DO NOT USE] Update the tree's root.
+         * @hidden
          */
         _changeRoot(newRoot, isInternal) {
             if (isInternal !== IS_INTERNAL) {

@@ -1,3 +1,7 @@
+**[react-immutable-tree](README.md)**
+
+> [Globals](globals.md)
+
 # react-immutable-tree [![license](https://img.shields.io/npm/l/react-immutable-tree)](https://github.com/mrjacobbloom/echo/blob/master/LICENSE) [![npm](https://img.shields.io/npm/v/react-immutable-tree)](https://www.npmjs.com/package/react-immutable-tree)
 
 An immutable tree structure because it's very difficult to correctly handle
