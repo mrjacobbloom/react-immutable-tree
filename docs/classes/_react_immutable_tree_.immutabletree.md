@@ -65,9 +65,9 @@ Name | Description |
 
 ### nodeWillUpdate
 
-•  **nodeWillUpdate**: null \| (oldData: Readonly\<DataType> \| null, newChildren: ReadonlyArray\<[ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType>>, oldChildren: ReadonlyArray\<[ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType>> \| null) => DataType = null
+•  **nodeWillUpdate**: null \| [NodeWillUpdateCallback](../modules/_react_immutable_tree_.md#nodewillupdatecallback)\<DataType> = null
 
-*Defined in [src/react-immutable-tree.ts:420](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L420)*
+*Defined in [src/react-immutable-tree.ts:426](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L426)*
 
 A function called on a node when it will update, including the node's
 initial creation or a parent updating due to a child's update. The returned
@@ -95,7 +95,7 @@ Name | Type |
 
 • get **root**(): [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
 
-*Defined in [src/react-immutable-tree.ts:425](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L425)*
+*Defined in [src/react-immutable-tree.ts:431](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L431)*
 
 The root node of the tree
 
@@ -139,7 +139,7 @@ ___
 
 ▸ **addRootWithData**(`data`: DataType): [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:432](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L432)*
+*Defined in [src/react-immutable-tree.ts:438](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L438)*
 
 Create a root node with the given data object.
 
@@ -179,7 +179,7 @@ ___
 
 ▸ **findOne**(`predicate`: (data: DataType) => boolean): [ImmutableTreeNode](_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
 
-*Defined in [src/react-immutable-tree.ts:445](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L445)*
+*Defined in [src/react-immutable-tree.ts:451](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L451)*
 
 Traverse the whole tree until a matching node is found.
 
@@ -197,7 +197,7 @@ ___
 
 ▸ **print**(): void
 
-*Defined in [src/react-immutable-tree.ts:452](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L452)*
+*Defined in [src/react-immutable-tree.ts:458](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L458)*
 
 Prints the tree.
 
@@ -231,7 +231,7 @@ ___
 
 ▸ **serialize**(): [DefaultSerializedTreeNode](../modules/_react_immutable_tree_.md#defaultserializedtreenode)\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:460](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L460)*
+*Defined in [src/react-immutable-tree.ts:466](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L466)*
 
 Transform the sub-tree into the default serialized format:
 `{ data, children }`.
@@ -240,7 +240,7 @@ Transform the sub-tree into the default serialized format:
 
 ▸ **serialize**\<SerializedType>(`serializer`: [Serializer](../modules/_react_immutable_tree_.md#serializer)\<SerializedType, DataType>): SerializedType
 
-*Defined in [src/react-immutable-tree.ts:467](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L467)*
+*Defined in [src/react-immutable-tree.ts:473](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L473)*
 
 Transform the sub-tree into a serialized format.
 
@@ -264,7 +264,7 @@ ___
 
 ▸ `Static`**deserialize**\<DataType>(`rootSerialized`: [DefaultSerializedTreeNode](../modules/_react_immutable_tree_.md#defaultserializedtreenode)\<DataType>): [ImmutableTree](_react_immutable_tree_.immutabletree.md)\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:479](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L479)*
+*Defined in [src/react-immutable-tree.ts:485](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L485)*
 
 Given a JS object representing your root node in the default serialized
 format, returns an ImmutableTree representing the data.
@@ -285,7 +285,7 @@ Name | Type | Description |
 
 ▸ `Static`**deserialize**\<SerializedType, DataType>(`rootSerialized`: SerializedType, `deserializer`: [Deserializer](../modules/_react_immutable_tree_.md#deserializer)\<SerializedType, DataType>): [ImmutableTree](_react_immutable_tree_.immutabletree.md)\<DataType>
 
-*Defined in [src/react-immutable-tree.ts:491](https://github.com/mrjacobbloom/react-immutable-tree/blob/09c7b02/src/react-immutable-tree.ts#L491)*
+*Defined in [src/react-immutable-tree.ts:497](https://github.com/mrjacobbloom/react-immutable-tree/blob/1ffbe27/src/react-immutable-tree.ts#L497)*
 
 Given a JS object representing your root node, and a function that can
 convert a node into a `{ data, children }` tuple, returns an ImmutableTree

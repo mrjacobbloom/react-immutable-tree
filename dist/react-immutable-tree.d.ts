@@ -20,6 +20,11 @@ export declare class ImmutableTreeEvent<DataType> extends Event {
     constructor(type: ImmutableTreeEventType, targetNode: ImmutableTreeNode<DataType> | null, rootNode: ImmutableTreeNode<DataType> | null);
 }
 /**
+ * The type of function you can set as {@link ImmutableTree.nodeWillUpdate}.
+ * @typeParam DataType The type of the data object associated with a given node.
+ */
+export declare type NodeWillUpdateCallback<DataType> = (oldData: Readonly<DataType> | null, newChildren: ReadonlyArray<ImmutableTreeNode<DataType>>, oldChildren: ReadonlyArray<ImmutableTreeNode<DataType>> | null) => DataType;
+/**
  * A function of this type can optionally be passed to {@link ImmutableTree.deserialize}
  * to tell it how to parse your serialized data. Not required if your serialized
  * data is already in `{ data, children }` (the default format of
@@ -213,7 +218,7 @@ export declare class ImmutableTree<DataType> extends EventTarget {
      * value will be used as the updated data value for this node. This will not
      * trigger any additional events.
      */
-    nodeWillUpdate: null | ((oldData: Readonly<DataType> | null, newChildren: ReadonlyArray<ImmutableTreeNode<DataType>>, oldChildren: ReadonlyArray<ImmutableTreeNode<DataType>> | null) => DataType);
+    nodeWillUpdate: null | NodeWillUpdateCallback<DataType>;
     /**
      * The root node of the tree
      */
