@@ -3,4 +3,4 @@
  * concept of exports
  */
 
-export declare const useTree: typeof import('../src/react-immutable-tree-hook').useTree;
+export declare const useTree: typeof import('../dist/react-immutable-tree-hook').useTree;
