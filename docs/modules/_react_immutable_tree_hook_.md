@@ -1,8 +1,10 @@
-**[react-immutable-tree](../README.md)**
-
-> [Globals](../globals.md) / "react-immutable-tree-hook"
+> [Globals](../README.md) / "react-immutable-tree-hook"
 
 # Module: "react-immutable-tree-hook"
+
+This module contains all React-specific functionality. It's
+separate because `react` is a dependency. It can be accessed my importing
+`react-immutable-tree/hook`.
 
 ## Index
 
@@ -16,7 +18,7 @@
 
 ▸ **useTree**\<DataType>(`tree`: [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType>): [ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
 
-*Defined in [src/react-immutable-tree-hook.ts:40](https://github.com/mrjacobbloom/react-immutable-tree/blob/623b1c0/src/react-immutable-tree-hook.ts#L40)*
+*Defined in [src/react-immutable-tree-hook.ts:47](https://github.com/mrjacobbloom/react-immutable-tree/blob/1687c05/src/react-immutable-tree-hook.ts#L47)*
 
 A React hook. Given an `ImmutableTree`, returns its root node and triggers a
 re-render when the tree updates.

@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "npx rollup -c",
-    "build-docs": "npx typedoc --plugin typedoc-plugin-markdown",
+    "build-docs": "npx typedoc --plugin typedoc-plugin-markdown --readme none --hideProjectName true",
     "test": "npx mocha"
   },
   "repository": {

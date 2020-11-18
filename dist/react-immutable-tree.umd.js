@@ -34,6 +34,11 @@
         return value;
     }
 
+    /**
+     * This module contains the package's core functionality. It can be accessed by
+     * importing `react-immutable-tree`.
+     * @packageDocumentation
+     */
     var _tree, _isStale, _children, _parent, _data, _root;
     /**
      * Shibboleth to ensure that certain actions, like constructing an

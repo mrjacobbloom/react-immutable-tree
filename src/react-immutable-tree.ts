@@ -1,4 +1,10 @@
 /**
+ * This module contains the package's core functionality. It can be accessed by
+ * importing `react-immutable-tree`.
+ * @packageDocumentation
+ */
+
+/**
  * Shibboleth to ensure that certain actions, like constructing an
  * ImmutableTreeNode, are only done from trusted code.
  * @hidden

@@ -1,3 +1,10 @@
+/**
+ * This module contains all React-specific functionality. It's
+ * separate because `react` is a dependency. It can be accessed my importing
+ * `react-immutable-tree/hook`.
+ * @packageDocumentation
+ */
+
 import { useState, useEffect } from 'react';
 import type { ImmutableTree, ImmutableTreeNode, ImmutableTreeEvent } from './react-immutable-tree';
 
