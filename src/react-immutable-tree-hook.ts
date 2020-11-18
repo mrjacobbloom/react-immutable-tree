@@ -1,7 +1,7 @@
 /**
  * This module contains all React-specific functionality. It's
- * separate because `react` is a dependency. It can be accessed my importing
- * `react-immutable-tree/hook`.
+ * separate because it has `react` is a dependency, which is not required for
+ * the core module. It can be accessed by importing `react-immutable-tree/hook`.
  * @packageDocumentation
  */
 
