@@ -25,6 +25,36 @@ simple equality check to decide whether to re-render. Simply subscribe to change
 
 ## Getting started
 
+## Installation/Importing
+
+To install, run
+
+```shell
+npm install react-immutable@VERSION tree --save
+```
+
+...where `VERSION` is the version you'd like to use. Pinning to a specific
+version because, until version 1.0.0 is released, the API is not guaranteed to
+be stable.
+
+If you're using it on a frontend, you can import the UMD packages from unpkg:
+```html
+<script crossorigin src="https://unpkg.com/react-immutable-tree@VERSION/dist/react-immutable-tree.umd.js"></script>
+<script crossorigin src="https://unpkg.com/react-immutable-tree@VERSION/dist/react-immutable-tree-hook.umd.js"></script>
+```
+
+Your imports might look like this:
+
+```javascript
+import { ImmutableTree } from 'react-immutable-tree';
+import { useTree } from 'react-immutable-tree/hook'
+```
+
+If you're using TypeScript, a bunch of handy types are also exported. Check out
+the docs for [`react-immutable-tree`](/docs/_react_immutabe_tree_.md) and
+[`react-immutable-tree/hook`](/docs/_react_immutabe_tree_hook_.md) for a full
+list.
+
 ### Constructing your tree the easy way
 
 ...that is, from JSON data. `ImmutableTree` provides a helper method, `deserialize`,
