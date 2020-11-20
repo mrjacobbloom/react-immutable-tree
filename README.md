@@ -25,7 +25,7 @@ simple equality check to decide whether to re-render. Simply subscribe to change
 
 ## Getting started
 
-## Installation/Importing
+### Installation/Importing
 
 To install, run
 
@@ -51,8 +51,8 @@ import { useTree } from 'react-immutable-tree/hook'
 ```
 
 If you're using TypeScript, a bunch of handy types are also exported. Check out
-the docs for [`react-immutable-tree`](/docs/_react_immutabe_tree_.md) and
-[`react-immutable-tree/hook`](/docs/_react_immutabe_tree_hook_.md) for a full
+the docs for [`react-immutable-tree`](/docs/modules/_react_immutabe_tree_.md) and
+[`react-immutable-tree/hook`](/docs/modules/_react_immutabe_tree_hook_.md) for a full
 list.
 
 ### Constructing your tree the easy way
