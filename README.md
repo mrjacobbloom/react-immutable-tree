@@ -30,7 +30,7 @@ simple equality check to decide whether to re-render. Simply subscribe to change
 To install, run
 
 ```shell
-npm install react-immutable@VERSION tree --save
+npm install react-immutable-treee@VERSION
 ```
 
 ...where `VERSION` is the version you'd like to use. Pinning to a specific
@@ -51,8 +51,8 @@ import { useTree } from 'react-immutable-tree/hook'
 ```
 
 If you're using TypeScript, a bunch of handy types are also exported. Check out
-the docs for [`react-immutable-tree`](/docs/modules/_react_immutabe_tree_.md) and
-[`react-immutable-tree/hook`](/docs/modules/_react_immutabe_tree_hook_.md) for a full
+the docs for [`react-immutable-tree`](/docs/modules/_react_immutable_tree_.md) and
+[`react-immutable-tree/hook`](/docs/modules/_react_immutable_tree_hook_.md) for a full
 list.
 
 ### Constructing your tree the easy way
