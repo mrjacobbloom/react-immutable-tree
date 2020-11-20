@@ -100,6 +100,11 @@ class ImmutableTreeNode {
         __classPrivateFieldSet(this, _children, Object.isFrozen(children) ? children : Object.freeze(children));
     }
     /**
+     * Helps with giving useful debug info.
+     * @hidden
+     */
+    get [(_tree = new WeakMap(), _isStale = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap(), Symbol.toStringTag)]() { return 'ImmutableTreeNode'; }
+    /**
      * A node is stale if it has been removed from the tree or is an old version of the node.
      */
     get isStale() { return __classPrivateFieldGet(this, _isStale); }
@@ -321,7 +326,9 @@ class ImmutableTreeNode {
         __classPrivateFieldGet(this, _tree).dispatchEvent(new ImmutableTreeEvent('immutabletree.changed', null, __classPrivateFieldGet(this, _tree).root));
     }
 }
-_tree = new WeakMap(), _isStale = new WeakMap(), _children = new WeakMap(), _parent = new WeakMap(), _data = new WeakMap();
+// An attempt to improve debug output
+Object.defineProperty(ImmutableTreeNode.prototype, 'data', { enumerable: true });
+Object.defineProperty(ImmutableTreeNode.prototype, 'children', { enumerable: true });
 /**
  * An `ImmutableTree` is a tree structure that can have any number of ordered
  * children. (Note: it's not a good fit for binary tree data where right/left
@@ -359,6 +366,11 @@ class ImmutableTree extends EventTarget /* will this break in Node? Who knodes *
         this.nodeWillUpdate = null;
         /** @hidden */ _root.set(this, null);
     }
+    /**
+     * Helps with giving useful debug info.
+     * @hidden
+     */
+    get [(_root = new WeakMap(), Symbol.toStringTag)]() { return 'ImmutableTree'; }
     /**
      * The root node of the tree
      */
@@ -446,6 +458,7 @@ class ImmutableTree extends EventTarget /* will this break in Node? Who knodes *
         __classPrivateFieldSet(this, _root, newRoot);
     }
 }
-_root = new WeakMap();
+// An attempt to improve debug output
+Object.defineProperty(ImmutableTree.prototype, 'root', { enumerable: true });
 
 export { ImmutableTree, ImmutableTreeEvent, ImmutableTreeNode };

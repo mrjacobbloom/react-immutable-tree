@@ -81,6 +81,11 @@ export declare type DefaultSerializedTreeNode<DataType> = {
 export declare class ImmutableTreeNode<DataType> {
     #private;
     /**
+     * Helps with giving useful debug info.
+     * @hidden
+     */
+    get [Symbol.toStringTag](): string;
+    /**
      * A node is stale if it has been removed from the tree or is an old version of the node.
      */
     get isStale(): boolean;
@@ -222,6 +227,11 @@ export declare class ImmutableTreeNode<DataType> {
  */
 export declare class ImmutableTree<DataType> extends EventTarget {
     #private;
+    /**
+     * Helps with giving useful debug info.
+     * @hidden
+     */
+    get [Symbol.toStringTag](): string;
     /**
      * A function called on a node when it will update, including the node's
      * initial creation or a parent updating due to a child's update. The returned

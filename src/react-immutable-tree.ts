@@ -111,6 +111,12 @@ export class ImmutableTreeNode<DataType> {
   #tree: ImmutableTree<DataType>;
 
   /**
+   * Helps with giving useful debug info.
+   * @hidden
+   */
+  public get [Symbol.toStringTag]() { return 'ImmutableTreeNode'; }
+
+  /**
    * A node is stale if it has been removed from the tree or is an old version of the node.
    */
   public get isStale(): boolean { return this.#isStale; }
@@ -401,6 +407,10 @@ export class ImmutableTreeNode<DataType> {
   // }
 }
 
+// An attempt to improve debug output
+Object.defineProperty(ImmutableTreeNode.prototype, 'data', {enumerable: true});
+Object.defineProperty(ImmutableTreeNode.prototype, 'children', {enumerable: true});
+
 /**
  * An `ImmutableTree` is a tree structure that can have any number of ordered
  * children. (Note: it's not a good fit for binary tree data where right/left
@@ -427,6 +437,12 @@ export class ImmutableTreeNode<DataType> {
  * @typeParam DataType The type of the data object associated with a given node.
  */
 export class ImmutableTree<DataType> extends EventTarget /* will this break in Node? Who knodes */ {
+
+  /**
+   * Helps with giving useful debug info.
+   * @hidden
+   */
+  public get [Symbol.toStringTag]() { return 'ImmutableTree'; }
 
   /**
    * A function called on a node when it will update, including the node's
@@ -560,3 +576,6 @@ export class ImmutableTree<DataType> extends EventTarget /* will this break in N
     this.#root = newRoot;
   }
 }
+
+// An attempt to improve debug output
+Object.defineProperty(ImmutableTree.prototype, 'root', {enumerable: true});
