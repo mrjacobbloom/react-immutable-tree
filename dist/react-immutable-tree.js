@@ -382,6 +382,21 @@ class ImmutableTree extends EventTarget /* will this break in Node? Who knodes *
         return __classPrivateFieldGet(this, _root);
     }
     /**
+     * Same as addRootWithData but does not fire any events.
+     * @returns The new root.
+     */
+    dangerouslyMutablyAddRootWithData(data) {
+        if (__classPrivateFieldGet(this, _root)) {
+            throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
+        }
+        const children = [];
+        if (this.nodeWillUpdate) {
+            data = this.nodeWillUpdate(data, children, null);
+        }
+        __classPrivateFieldSet(this, _root, new ImmutableTreeNode(IS_INTERNAL, this, null, data, children));
+        return __classPrivateFieldGet(this, _root);
+    }
+    /**
      * Traverse the whole tree until a matching node is found.
      */
     findOne(predicate) {
@@ -401,7 +416,7 @@ class ImmutableTree extends EventTarget /* will this break in Node? Who knodes *
     static deserialize(rootSerialized, deserializer = defaultDeserializer) {
         const tree = new ImmutableTree();
         const rootTransformed = deserializer(rootSerialized);
-        tree.addRootWithData(rootTransformed.data);
+        tree.dangerouslyMutablyAddRootWithData(rootTransformed.data);
         for (const childPojo of rootTransformed.children) {
             ImmutableTree.deserializeHelper(__classPrivateFieldGet(tree, _root), childPojo, deserializer);
         }

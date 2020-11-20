@@ -111,6 +111,38 @@ describe('ImmutableTree', () => {
       expect(myTree.root).to.exist;
       expect(myTree.root.data).to.deep.equal({ value: 5 });
     });
+    it('Dispatches immutabletree.insertchild and immutabletree.changed', () => {
+      const myTree = new ImmutableTree();
+      const stub1 = sinon.stub();
+      const stub2 = sinon.stub();
+      myTree.addEventListener('immutabletree.insertchild', stub1);
+      myTree.addEventListener('immutabletree.changed', stub2)
+      const root = myTree.addRootWithData({ value: 5 });
+      expect(stub1.callCount).to.equal(1);
+      expect(stub2.callCount).to.equal(1);
+      expect(stub1.args[0][0].targetNode).to.be.null;
+      expect(stub1.args[0][0].rootNode).to.equal(root);
+      expect(stub2.args[0][0].targetNode).to.be.null;
+      expect(stub2.args[0][0].rootNode).to.equal(root);
+    });
+  });
+  describe('#dangerouslyMutablyAddRootWithData()', () => {
+    it('Works as expected', () => {
+      const myTree = new ImmutableTree();
+      myTree.dangerouslyMutablyAddRootWithData({ value: 5 });
+      expect(myTree.root).to.exist;
+      expect(myTree.root.data).to.deep.equal({ value: 5 });
+    });
+    it('Does not dispatch any events', () => {
+      const myTree = new ImmutableTree();
+      const stub1 = sinon.stub();
+      const stub2 = sinon.stub();
+      myTree.addEventListener('immutabletree.insertchild', stub1);
+      myTree.addEventListener('immutabletree.changed', stub2)
+      const root = myTree.dangerouslyMutablyAddRootWithData({ value: 5 });
+      expect(stub1.callCount).to.equal(0);
+      expect(stub2.callCount).to.equal(0);
+    });
   });
   describe('#findOne()', () => {
     it('Returns matching node if exactly 1 exists', () => {

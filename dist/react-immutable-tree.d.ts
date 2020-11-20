@@ -239,6 +239,11 @@ export declare class ImmutableTree<DataType> extends EventTarget {
      */
     addRootWithData(data: DataType): ImmutableTreeNode<DataType>;
     /**
+     * Same as addRootWithData but does not fire any events.
+     * @returns The new root.
+     */
+    dangerouslyMutablyAddRootWithData(data: DataType): ImmutableTreeNode<DataType>;
+    /**
      * Traverse the whole tree until a matching node is found.
      */
     findOne(predicate: (data: DataType) => boolean): ImmutableTreeNode<DataType> | null;

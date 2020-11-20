@@ -156,7 +156,7 @@ const tableOfContents = new ImmutableTree();
 tableOfContents.addRootWithData({ title: null });
 
 // If we don't need the tree to behave immutably yet, the easiest way to build it is using this function
-const root = tableOfContents.root;
+const root = tableOfContents.dangerouslyMutablyAddRootWithData({ title: null });
 root.dangerouslyMutablyInsertChildWithData({ title: '1. How I did it' });
 root.dangerouslyMutablyInsertChildWithData({ title: '3. Why I did it' });
 root.dangerouslyMutablyInsertChildWithData({ title: '2. If I did it' }, 1); // optional second argument is index

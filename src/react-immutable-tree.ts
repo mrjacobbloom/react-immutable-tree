@@ -461,6 +461,22 @@ export class ImmutableTree<DataType> extends EventTarget /* will this break in N
   }
 
   /**
+   * Same as addRootWithData but does not fire any events.
+   * @returns The new root.
+   */
+  public dangerouslyMutablyAddRootWithData(data: DataType): ImmutableTreeNode<DataType> {
+    if (this.#root) {
+      throw new Error('Attempted to add a root to an ImmutableTree that already has a root node. Try removing it.');
+    }
+    const children: ImmutableTreeNode<DataType>[] = [];
+    if (this.nodeWillUpdate) {
+      data = this.nodeWillUpdate(data, children, null);
+    }
+    this.#root = new ImmutableTreeNode<DataType>(IS_INTERNAL, this, null, data, children);
+    return this.#root;
+  }
+
+  /**
    * Traverse the whole tree until a matching node is found.
    */
   public findOne(predicate: (data: DataType) => boolean): ImmutableTreeNode<DataType> | null {
@@ -513,7 +529,7 @@ export class ImmutableTree<DataType> extends EventTarget /* will this break in N
   public static deserialize<SerializedType, DataType extends unknown>(rootSerialized: SerializedType, deserializer = defaultDeserializer as unknown as Deserializer<SerializedType, DataType>): ImmutableTree<DataType> {
     const tree = new ImmutableTree<DataType>();
     const rootTransformed = deserializer(rootSerialized);
-    tree.addRootWithData(rootTransformed.data);
+    tree.dangerouslyMutablyAddRootWithData(rootTransformed.data);
     for(const childPojo of rootTransformed.children) {
       ImmutableTree.deserializeHelper(tree.#root!, childPojo, deserializer);
     }
