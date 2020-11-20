@@ -15,58 +15,78 @@ describe('useTree', () => {
     myTree = ImmutableTree.deserialize(pojoData1(), pojoData1Deserializer);
   });
 
+  it('Works as expected with tree generator function', () => {
+    const treeGenerator = sinon.stub().returns(myTree);
+    const { result, rerender } = renderHook(() => useTree(treeGenerator));
+
+    expect(result.current).to.deep.equal([myTree.root, myTree]);
+    rerender();
+    expect(result.current).to.deep.equal([myTree.root, myTree]);
+
+    expect(treeGenerator.callCount).to.equal(1);
+  });
+
   it('Should run on update node', () => {
     const { result } = renderHook(() => useTree(myTree));
 
-    const oldRoot = result.current;
+    const [oldRoot, oldTree] = result.current;
 
     act(() => {
-      result.current.children[0].setData({ description: 'UPDATED DESCRIPTION' });
+      result.current[0].children[0].setData({ description: 'UPDATED DESCRIPTION' });
     });
 
-    expect(result.current).to.not.equal(oldRoot);
+    expect(result.current[0]).to.not.equal(oldRoot);
+    expect(result.current[1]).to.equal(oldTree);
   });
 
   it('Should run on create node', () => {
     const { result } = renderHook(() => useTree(myTree));
 
-    const oldRoot = result.current;
+    const [oldRoot, oldTree] = result.current;
 
     act(() => {
-      result.current.children[0].insertChildWithData({ description: 'NEW DESCRIPTION' });
+      result.current[0].children[0].insertChildWithData({ description: 'NEW DESCRIPTION' });
     });
 
-    expect(result.current).to.not.equal(oldRoot);
+    expect(result.current[0]).to.not.equal(oldRoot);
+    expect(result.current[1]).to.equal(oldTree);
   });
 
   it('Should run on move node', () => {
     const { result } = renderHook(() => useTree(myTree));
 
-    const oldRoot = result.current;
+    const [oldRoot, oldTree] = result.current;
 
     act(() => {
-      result.current.children[0].moveTo(result.current.children[1]);
+      result.current[0].children[0].moveTo(result.current[0].children[1]);
     });
 
-    expect(result.current).to.not.equal(oldRoot);
+    expect(result.current[0]).to.not.equal(oldRoot);
+    expect(result.current[1]).to.equal(oldTree);
   });
 
   it('Should run on remove node', () => {
     const { result } = renderHook(() => useTree(myTree));
 
-    const oldRoot = result.current;
+    const [oldRoot, oldTree] = result.current;
 
     act(() => {
-      result.current.children[0].remove();
+      result.current[0].children[0].remove();
     });
 
-    expect(result.current).to.not.equal(oldRoot);
+    expect(result.current[0]).to.not.equal(oldRoot);
+    expect(result.current[1]).to.equal(oldTree);
   });
 
   it('Should add event listener on mount and remove event listener on unmount', () => {
     const ael = sinon.spy(myTree, 'addEventListener');
     const rel = sinon.spy(myTree, 'removeEventListener');
-    const { unmount } = renderHook(() => useTree(myTree));
+    const { unmount, rerender } = renderHook(() => useTree(myTree));
+
+    expect(ael.callCount).to.equal(1);
+    expect(rel.callCount).to.equal(0);
+
+    rerender();
 
     expect(ael.callCount).to.equal(1);
     expect(rel.callCount).to.equal(0);

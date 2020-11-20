@@ -16,9 +16,9 @@ the core module. It can be accessed by importing `react-immutable-tree/hook`.
 
 ### useTree
 
-▸ **useTree**\<DataType>(`tree`: [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType>): [ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
+▸ **useTree**\<DataType>(`treeOrTreeGenerator`: [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType> \| () => [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType>): [[ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null, [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType> \| null]
 
-*Defined in [src/react-immutable-tree-hook.ts:47](https://github.com/mrjacobbloom/react-immutable-tree/blob/8c83a99/src/react-immutable-tree-hook.ts#L47)*
+*Defined in [src/react-immutable-tree-hook.ts:70](https://github.com/mrjacobbloom/react-immutable-tree/blob/b52e066/src/react-immutable-tree-hook.ts#L70)*
 
 A React hook. Given an `ImmutableTree`, returns its root node and triggers a
 re-render when the tree updates.
@@ -41,7 +41,7 @@ const NodeView = React.memo(({ node }) => (
 
 import { useTree } from 'react-immutable-tree/hook';
 const App = ({tree}) => {
-  const rootNode = useTree(tree);
+  const [rootNode] = useTree(tree);
 
   return (
     <ul>
@@ -51,6 +51,28 @@ const App = ({tree}) => {
 };
 
 ReactDOM.render(<App tree={myTree} />, document.getElementById('app'));
+```
+
+useTree can also accept a "tree generator" function: A function that runs
+once to initialize the tree.
+
+```jsx
+import { ImmutableTree } from 'react-immutable-tree';
+import { useTree } from 'react-immutable-tree/hook';
+const App = () => {
+  const [rootNode, tree] = useTree(() => {
+    return ImmutableTree.deserialize(MY_SERIALIZED_DATA);
+    // or anything else required to build the tree, as long as an ImmutableTree is returned
+  });
+
+  return (
+    <ul>
+      <NodeView node={rootNode}/>
+    </ul>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('app'));
 ```
 
 #### Type parameters:
@@ -63,8 +85,8 @@ Name | Description |
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`tree` | [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType> | Your `ImmutableTree` |
+`treeOrTreeGenerator` | [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType> \| () => [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType> | Your `ImmutableTree`, or a function that will run one time to generate your `ImmutableTree`. |
 
-**Returns:** [ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null
+**Returns:** [[ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null, [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType> \| null]
 
-The up-to-date root node of the tree
+The up-to-date root node of the tree, and the tree

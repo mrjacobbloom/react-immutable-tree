@@ -125,6 +125,28 @@ const App = ({tree}) => {
 ReactDOM.render(<App tree={myTree} />, document.getElementById('app'));
 ```
 
+useTree can also accept a "tree generator" function: A function that runs
+once to initialize the tree.
+
+```jsx
+import { ImmutableTree } from 'react-immutable-tree';
+import { useTree } from 'react-immutable-tree/hook';
+const App = () => {
+  const [rootNode, tree] = useTree(() => {
+    return ImmutableTree.deserialize(MY_SERIALIZED_DATA);
+    // or anything else required to build the tree, as long as an ImmutableTree is returned
+  });
+
+  return (
+    <ul>
+      <NodeView node={rootNode}/>
+    </ul>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('app'));
+```
+
 ### Constructing/modifying your tree the harder way (manually)
 
 ```javascript

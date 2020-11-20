@@ -11,9 +11,10 @@ import type { ImmutableTree, ImmutableTreeNode, ImmutableTreeEvent } from './rea
 /**
  * A React hook. Given an `ImmutableTree`, returns its root node and triggers a
  * re-render when the tree updates.
- * @param tree Your `ImmutableTree`
+ * @param treeOrTreeGenerator Your `ImmutableTree`, or a function that will run
+ * one time to generate your `ImmutableTree`.
  * @typeParam DataType The type of the data object associated with a given node.
- * @returns The up-to-date root node of the tree
+ * @returns The up-to-date root node of the tree, and the tree
  * @example
  * ```jsx
  * const NodeView = React.memo(({ node }) => (
@@ -32,7 +33,7 @@ import type { ImmutableTree, ImmutableTreeNode, ImmutableTreeEvent } from './rea
  * 
  * import { useTree } from 'react-immutable-tree/hook';
  * const App = ({tree}) => {
- *   const rootNode = useTree(tree);
+ *   const [rootNode] = useTree(tree);
  * 
  *   return (
  *     <ul>
@@ -43,23 +44,55 @@ import type { ImmutableTree, ImmutableTreeNode, ImmutableTreeEvent } from './rea
  * 
  * ReactDOM.render(<App tree={myTree} />, document.getElementById('app'));
  * ```
+ * 
+ * useTree can also accept a "tree generator" function: A function that runs
+ * once to initialize the tree.
+ * 
+ * ```jsx
+ * import { ImmutableTree } from 'react-immutable-tree';
+ * import { useTree } from 'react-immutable-tree/hook';
+ * const App = () => {
+ *   const [rootNode, tree] = useTree(() => {
+ *     return ImmutableTree.deserialize(MY_SERIALIZED_DATA);
+ *     // or anything else required to build the tree, as long as an ImmutableTree is returned
+ *   });
+ * 
+ *   return (
+ *     <ul>
+ *       <NodeView node={rootNode}/>
+ *     </ul>
+ *   );
+ * };
+ * 
+ * ReactDOM.render(<App />, document.getElementById('app'));
+ * ```
  */
-export function useTree<DataType>(tree: ImmutableTree<DataType>): ImmutableTreeNode<DataType> | null {
-  const [rootNode, setRootNode] = useState(tree.root);
+export function useTree<DataType>(treeOrTreeGenerator: ImmutableTree<DataType> | (() => ImmutableTree<DataType>)): [ImmutableTreeNode<DataType> | null, ImmutableTree<DataType> | null] {
+  const defaultTree = typeof treeOrTreeGenerator === 'function' ? null : treeOrTreeGenerator;
+  const [tree, setTree] = useState<ImmutableTree<DataType> | null>(defaultTree);
+  const [rootNode, setRootNode] = useState(tree ? tree.root : null);
 
   useEffect(() => {
-    const handleRootChange: EventListener = (ev: Event | ImmutableTreeEvent<DataType>) => {
-      if ('rootNode' in ev) { // felt less expensive than a type guard function, idk
-        setRootNode(ev.rootNode);
+    if (tree) {
+      // If our tree exists in state, attach handlers
+      const handleRootChange: EventListener = (ev: Event | ImmutableTreeEvent<DataType>) => {
+        if ('rootNode' in ev) { // felt less expensive than a type guard function, idk
+          setRootNode(ev.rootNode);
+        }
       }
+  
+      tree.addEventListener('immutabletree.changed', handleRootChange);
+  
+      return () => {
+        tree.removeEventListener('immutabletree.changed', handleRootChange);
+      };
+    } else {
+      // If our tree does not exist in state, we were passed a treeGenerator. Run it at store said tree
+      const tree = (treeOrTreeGenerator as () => ImmutableTree<DataType>)();
+      setTree(tree);
+      setRootNode(tree.root);
     }
+  }, [tree]);
 
-    tree.addEventListener('immutabletree.changed', handleRootChange);
-
-    return () => {
-      tree.removeEventListener('immutabletree.changed', handleRootChange);
-    };
-  });
-
-  return rootNode;
+  return [rootNode, tree];
 }
