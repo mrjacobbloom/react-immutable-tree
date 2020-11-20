@@ -114,7 +114,7 @@ export declare class ImmutableTreeNode<DataType> {
      * myNode.updateData(oldData => ({ ...oldData, myProp: 'new value' }))
      * ```
      */
-    updateData(updater: (oldData: Readonly<DataType> | undefined) => DataType): ImmutableTreeNode<DataType>;
+    updateData(updater: (oldData: Readonly<DataType>) => DataType): ImmutableTreeNode<DataType>;
     /**
      * Set the data at the given node. This method will throw an error if the node
      * is stale.

@@ -161,7 +161,7 @@ export class ImmutableTreeNode<DataType> {
    * myNode.updateData(oldData => ({ ...oldData, myProp: 'new value' }))
    * ```
    */
-  public updateData(updater: (oldData: Readonly<DataType> | undefined) => DataType): ImmutableTreeNode<DataType> {
+  public updateData(updater: (oldData: Readonly<DataType>) => DataType): ImmutableTreeNode<DataType> {
     this.assertNotStale();
     const newData = updater(this.#data);
     const myReplacement = this.clone();
