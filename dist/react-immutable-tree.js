@@ -80,8 +80,6 @@ class ImmutableTreeNode {
      * @hidden
      */
     constructor(isInternal, tree, parent, data, children) {
-        // @todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
-        // (if I do add that, update the error message in assertNotDead to be more helpful)
         /**
          * The `ImmutableTree` that this node is a part of.
          * @hidden
@@ -111,17 +109,17 @@ class ImmutableTreeNode {
     /**
      * A frozen array of child nodes. Accessing this will throw an error if the node is stale.
      */
-    get children() { this.assertNotStale(); return __classPrivateFieldGet(this, _children); }
+    get children() { this.assertNotStale('access', 'children'); return __classPrivateFieldGet(this, _children); }
     ;
     /**
      * The parent node, or null for the root. Accessing this will throw an error if the node is stale.
      */
-    get parent() { this.assertNotStale(); return __classPrivateFieldGet(this, _parent); }
+    get parent() { this.assertNotStale('access', 'parent'); return __classPrivateFieldGet(this, _parent); }
     ;
     /**
      * The data associated with the node. Accessing this will throw an error if the node is stale.
      */
-    get data() { this.assertNotStale(); return __classPrivateFieldGet(this, _data); }
+    get data() { this.assertNotStale('access', 'data'); return __classPrivateFieldGet(this, _data); }
     ;
     /**
      * Update the data at the given node. This method will throw an error if the
@@ -137,7 +135,7 @@ class ImmutableTreeNode {
      * ```
      */
     updateData(updater) {
-        this.assertNotStale();
+        this.assertNotStale('call', 'updateData');
         const newData = updater(__classPrivateFieldGet(this, _data));
         const myReplacement = this.clone();
         __classPrivateFieldSet(myReplacement, _data, newData);
@@ -152,7 +150,7 @@ class ImmutableTreeNode {
      * @returns The new tree node that will replace this one
      */
     setData(newData) {
-        this.assertNotStale();
+        this.assertNotStale('call', 'setData');
         const myReplacement = this.clone();
         __classPrivateFieldSet(myReplacement, _data, newData);
         this.replaceSelf(myReplacement);
@@ -167,7 +165,7 @@ class ImmutableTreeNode {
      * @returns The new tree node that will replace this one (NOT the new child).
      */
     insertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
-        this.assertNotStale();
+        this.assertNotStale('call', 'insertChildWithData');
         const newChild = new ImmutableTreeNode(IS_INTERNAL, __classPrivateFieldGet(this, _tree), this, data, []);
         if (__classPrivateFieldGet(this, _tree).nodeWillUpdate) {
             __classPrivateFieldSet(newChild, _data, __classPrivateFieldGet(this, _tree).nodeWillUpdate(data, __classPrivateFieldGet(newChild, _children), null));
@@ -190,7 +188,7 @@ class ImmutableTreeNode {
      * @returns This node
      */
     dangerouslyMutablyInsertChildWithData(data, index = __classPrivateFieldGet(this, _children).length) {
-        this.assertNotStale();
+        this.assertNotStale('call', 'dangerouslyMutablyInsertChildWithData');
         const newChild = new ImmutableTreeNode(IS_INTERNAL, __classPrivateFieldGet(this, _tree), this, data, []);
         if (__classPrivateFieldGet(this, _tree).nodeWillUpdate) {
             __classPrivateFieldSet(newChild, _data, __classPrivateFieldGet(this, _tree).nodeWillUpdate(data, __classPrivateFieldGet(newChild, _children), null));
@@ -209,7 +207,7 @@ class ImmutableTreeNode {
      * @returns Itself, since this operation does not technically modify this node
      */
     moveTo(newParent, index = __classPrivateFieldGet(newParent, _children).length) {
-        this.assertNotStale();
+        this.assertNotStale('call', 'moveTo');
         // Note: the below assertions are there to leave the design space open.
         // Just because I can't think of a useful meaning for these operations right now doesn't mean there isn't one
         // Assert this node is not root
@@ -243,7 +241,7 @@ class ImmutableTreeNode {
      * @returns The removed node
      */
     remove() {
-        this.assertNotStale();
+        this.assertNotStale('call', 'remove');
         if (__classPrivateFieldGet(this, _parent)) {
             const parentReplacement = __classPrivateFieldGet(this, _parent).clone();
             __classPrivateFieldSet(parentReplacement, _children, Object.freeze(__classPrivateFieldGet(parentReplacement, _children).filter(child => child !== this)));
@@ -312,9 +310,9 @@ class ImmutableTreeNode {
      * Throws if this node is marked stale. Used to ensure that no changes are made to old node objects.
      * @hidden
      */
-    assertNotStale() {
+    assertNotStale(action, property) {
         if (__classPrivateFieldGet(this, _isStale)) {
-            throw new Error('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+            throw new Error(`Illegal attempt to ${action} "${property}" on a stale version of a node, or a node that no longer exists`);
         }
     }
     /**

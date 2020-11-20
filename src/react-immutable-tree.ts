@@ -101,9 +101,6 @@ const defaultDeserializer = <DataType>(pojo: DefaultSerializedTreeNode<DataType>
  * @typeParam DataType The type of the data object associated with a given node.
  */
 export class ImmutableTreeNode<DataType> {
-  // @todo: should there be a way to get treeNode.newestVersion or something? Or would that cause all manner of memory leaks? Hm...
-  // (if I do add that, update the error message in assertNotDead to be more helpful)
-
   /**
    * The `ImmutableTree` that this node is a part of.
    * @hidden
@@ -125,19 +122,19 @@ export class ImmutableTreeNode<DataType> {
   /**
    * A frozen array of child nodes. Accessing this will throw an error if the node is stale.
    */
-  public get children(): ReadonlyArray<ImmutableTreeNode<DataType>> { this.assertNotStale(); return this.#children; };
+  public get children(): ReadonlyArray<ImmutableTreeNode<DataType>> { this.assertNotStale('access', 'children'); return this.#children; };
   /** @hidden */ #children: ReadonlyArray<ImmutableTreeNode<DataType>>;
 
   /**
    * The parent node, or null for the root. Accessing this will throw an error if the node is stale.
    */
-  public get parent(): ImmutableTreeNode<DataType> | null { this.assertNotStale(); return this.#parent; };
+  public get parent(): ImmutableTreeNode<DataType> | null { this.assertNotStale('access', 'parent'); return this.#parent; };
   /** @hidden */ #parent: ImmutableTreeNode<DataType> | null;
 
   /**
    * The data associated with the node. Accessing this will throw an error if the node is stale.
    */
-  public get data(): Readonly<DataType> { this.assertNotStale(); return this.#data; };
+  public get data(): Readonly<DataType> { this.assertNotStale('access', 'data'); return this.#data; };
   /** @hidden */ #data: DataType;
 
   /**
@@ -168,7 +165,7 @@ export class ImmutableTreeNode<DataType> {
    * ```
    */
   public updateData(updater: (oldData: Readonly<DataType>) => DataType): ImmutableTreeNode<DataType> {
-    this.assertNotStale();
+    this.assertNotStale('call', 'updateData');
     const newData = updater(this.#data);
     const myReplacement = this.clone();
     myReplacement.#data = newData;
@@ -184,7 +181,7 @@ export class ImmutableTreeNode<DataType> {
    * @returns The new tree node that will replace this one
    */
   public setData(newData: DataType): ImmutableTreeNode<DataType> {
-    this.assertNotStale();
+    this.assertNotStale('call', 'setData');
     const myReplacement = this.clone();
     myReplacement.#data = newData;
     this.replaceSelf(myReplacement);
@@ -200,7 +197,7 @@ export class ImmutableTreeNode<DataType> {
    * @returns The new tree node that will replace this one (NOT the new child).
    */
   public insertChildWithData(data: DataType, index: number = this.#children.length): ImmutableTreeNode<DataType> {
-    this.assertNotStale();
+    this.assertNotStale('call', 'insertChildWithData');
     const newChild = new ImmutableTreeNode<DataType>(IS_INTERNAL, this.#tree, this, data, []);
 
     if (this.#tree.nodeWillUpdate) {
@@ -226,7 +223,7 @@ export class ImmutableTreeNode<DataType> {
    * @returns This node
    */
   public dangerouslyMutablyInsertChildWithData(data: DataType, index: number = this.#children.length): this {
-    this.assertNotStale();
+    this.assertNotStale('call', 'dangerouslyMutablyInsertChildWithData');
     const newChild = new ImmutableTreeNode<DataType>(IS_INTERNAL, this.#tree, this, data, []);
 
     if (this.#tree.nodeWillUpdate) {
@@ -248,7 +245,7 @@ export class ImmutableTreeNode<DataType> {
    * @returns Itself, since this operation does not technically modify this node
    */
   public moveTo(newParent: ImmutableTreeNode<DataType>, index: number = newParent.#children.length): this {
-    this.assertNotStale();
+    this.assertNotStale('call', 'moveTo');
 
     // Note: the below assertions are there to leave the design space open.
     // Just because I can't think of a useful meaning for these operations right now doesn't mean there isn't one
@@ -286,7 +283,7 @@ export class ImmutableTreeNode<DataType> {
    * @returns The removed node
    */
   public remove(): this {
-    this.assertNotStale();
+    this.assertNotStale('call', 'remove');
     if (this.#parent) {
       const parentReplacement = this.#parent.clone();
       parentReplacement.#children = Object.freeze(parentReplacement.#children.filter(child => child !== this));
@@ -374,9 +371,9 @@ export class ImmutableTreeNode<DataType> {
    * Throws if this node is marked stale. Used to ensure that no changes are made to old node objects.
    * @hidden
    */
-  private assertNotStale(): void {
+  private assertNotStale(action: 'access' | 'call', property: string): void {
     if(this.#isStale) {
-      throw new Error('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      throw new Error(`Illegal attempt to ${action} "${property}" on a stale version of a node, or a node that no longer exists`);
     }
   }
 
@@ -388,23 +385,6 @@ export class ImmutableTreeNode<DataType> {
     this.#tree.dispatchEvent(new ImmutableTreeEvent(type, this, this.#tree.root));
     this.#tree.dispatchEvent(new ImmutableTreeEvent('immutabletree.changed', null, this.#tree.root));
   }
-
-  // private static findCommonAncestor<T>(node1: ImmutableTreeNode<T>, node2: ImmutableTreeNode<T>): ImmutableTreeNode<T> {
-  //   const node1Ancestors = new Set<ImmutableTreeNode<T>>();
-  //   let current1: ImmutableTreeNode<T> | null = node1;
-  //   while(current1) {
-  //     node1Ancestors.add(current1); // hey future me: this may be a deoptimization point to watch out for
-  //     current1 = current1.#parent;
-  //   }
-
-  //   let current2: ImmutableTreeNode<T> | null = node2;
-  //   while(current2) {
-  //     if (node1Ancestors.has(current2)) return current2;
-  //     current2 = current2.#parent;
-  //   }
-
-  //   return undefined as never;
-  // }
 }
 
 // An attempt to improve debug output

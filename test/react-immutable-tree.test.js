@@ -224,7 +224,6 @@ describe('ImmutableTreeNode', () => {
     });
     it('Setting throws', () => {
       expect(() => {
-
         myTree.root.isStale = 'THIS VALUE DOES NOT MATTER BECAUSE SETTING THIS PORPERTY IS ILLEGAL';
       }).to.throw();
     });
@@ -242,15 +241,13 @@ describe('ImmutableTreeNode', () => {
     });
     it('Getting on stale node throws', () => {
       expect(() => {
-
         const node = myTree.root.children[0];
         node.remove();
         node.children;
-      }).to.throw();
+      }).to.throw('Illegal attempt to access "children" on a stale version of a node, or a node that no longer exists');
     });
     it('Setting throws', () => {
       expect(() => {
-
         myTree.root.children = 'THIS VALUE DOES NOT MATTER BECAUSE SETTING THIS PORPERTY IS ILLEGAL';
       }).to.throw();
     });
@@ -262,15 +259,13 @@ describe('ImmutableTreeNode', () => {
     });
     it('Getting on stale node throws', () => {
       expect(() => {
-
         const node = myTree.root.children[0];
         node.remove();
         node.parent;
-      }).to.throw();
+      }).to.throw('Illegal attempt to access "parent" on a stale version of a node, or a node that no longer exists');
     });
     it('Setting throws', () => {
       expect(() => {
-
         myTree.root.parent = 'THIS VALUE DOES NOT MATTER BECAUSE SETTING THIS PORPERTY IS ILLEGAL';
       }).to.throw();
     });
@@ -281,15 +276,13 @@ describe('ImmutableTreeNode', () => {
     });
     it('Getting on stale node throws', () => {
       expect(() => {
-
         const node = myTree.root.children[0];
         node.remove();
         node.data;
-      }).to.throw();
+      }).to.throw('Illegal attempt to access "data" on a stale version of a node, or a node that no longer exists');
     });
     it('Setting throws', () => {
       expect(() => {
-
         myTree.root.data = 'THIS VALUE DOES NOT MATTER BECAUSE SETTING THIS PORPERTY IS ILLEGAL';
       }).to.throw();
     });
@@ -316,10 +309,10 @@ describe('ImmutableTreeNode', () => {
       expect(oldChild.isStale).to.be.true;
       expect(() => {
         oldRoot.updateData(() => ({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "updateData" on a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldChild.updateData(() => ({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "updateData" on a stale version of a node, or a node that no longer exists');
     });
     it('Dispatches immutabletree.updatenode event with targetNode set to updated node', () => {
       const stub = sinon.stub();
@@ -358,10 +351,10 @@ describe('ImmutableTreeNode', () => {
       expect(oldChild.isStale).to.be.true;
       expect(() => {
         oldRoot.setData(({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "setData" on a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldChild.setData(({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "setData" on a stale version of a node, or a node that no longer exists');
     });
     it('Dispatches immutabletree.updatenode event with targetNode set to updated node', () => {
       const stub = sinon.stub();
@@ -404,10 +397,10 @@ describe('ImmutableTreeNode', () => {
       expect(oldChild.isStale).to.be.true;
       expect(() => {
         oldRoot.insertChildWithData(({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "insertChildWithData" on a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldChild.insertChildWithData(({ description: 'THIS VALUE DOES NOT MATTER BECAUSE UPDATING THIS NODE IS ILLEGAL' }));
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "insertChildWithData" on a stale version of a node, or a node that no longer exists');
     });
     it('Dispatches immutabletree.insertchild event with targetNode set to PARENT node', () => {
       const stub = sinon.stub();
@@ -502,10 +495,10 @@ describe('ImmutableTreeNode', () => {
       expect(oldNewParent.isStale).to.be.true;
       expect(() => {
         oldOldParent.moveTo(myTree.root);
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "moveTo" on a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldNewParent.moveTo(myTree.root);
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "moveTo" on a stale version of a node, or a node that no longer exists');
     });
     it('Throws for root', () => {
       expect(() => {
@@ -562,10 +555,10 @@ describe('ImmutableTreeNode', () => {
       expect(oldChild.isStale).to.be.true;
       expect(() => {
         oldRoot.remove();
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "remove" on a stale version of a node, or a node that no longer exists');
       expect(() => {
         oldChild.remove();
-      }).to.throw('Illegal attempt to modify a stale version of a node, or a node that no longer exists');
+      }).to.throw('Illegal attempt to call "remove" on a stale version of a node, or a node that no longer exists');
     });
     it('Dispatches immutabletree.removenode event with targetNode set to removed node', () => {
       const node = myTree.root.children[0];
