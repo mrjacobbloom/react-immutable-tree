@@ -30,7 +30,7 @@ simple equality check to decide whether to re-render. Simply subscribe to change
 To install, run
 
 ```shell
-npm install react-immutable-treee@VERSION
+npm install react-immutable-tree@VERSION
 ```
 
 ...where `VERSION` is the version you'd like to use. Pinning to a specific
