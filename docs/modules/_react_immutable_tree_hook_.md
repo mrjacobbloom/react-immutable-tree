@@ -18,7 +18,7 @@ the core module. It can be accessed by importing `react-immutable-tree/hook`.
 
 ▸ **useTree**\<DataType>(`treeOrTreeGenerator`: [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType> \| () => [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType>): [[ImmutableTreeNode](../classes/_react_immutable_tree_.immutabletreenode.md)\<DataType> \| null, [ImmutableTree](../classes/_react_immutable_tree_.immutabletree.md)\<DataType> \| null]
 
-*Defined in [src/react-immutable-tree-hook.ts:70](https://github.com/mrjacobbloom/react-immutable-tree/blob/b52e066/src/react-immutable-tree-hook.ts#L70)*
+*Defined in [src/react-immutable-tree-hook.ts:70](https://github.com/mrjacobbloom/react-immutable-tree/blob/3f9614d/src/react-immutable-tree-hook.ts#L70)*
 
 A React hook. Given an `ImmutableTree`, returns its root node and triggers a
 re-render when the tree updates.
@@ -53,7 +53,7 @@ const App = ({tree}) => {
 ReactDOM.render(<App tree={myTree} />, document.getElementById('app'));
 ```
 
-useTree can also accept a "tree generator" function: A function that runs
+`useTree` can also accept a "tree generator" function: a function that runs
 once to initialize the tree.
 
 ```jsx

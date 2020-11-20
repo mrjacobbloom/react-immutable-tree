@@ -42,7 +42,7 @@ import type { ImmutableTree, ImmutableTreeNode } from './react-immutable-tree';
  * ReactDOM.render(<App tree={myTree} />, document.getElementById('app'));
  * ```
  *
- * useTree can also accept a "tree generator" function: A function that runs
+ * `useTree` can also accept a "tree generator" function: a function that runs
  * once to initialize the tree.
  *
  * ```jsx
